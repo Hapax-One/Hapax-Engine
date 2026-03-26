@@ -1,0 +1,13 @@
+http:
+  routers:
+    odoo:
+      rule: "HostRegexp(`{subdomain:.+}.haykinsodoo.docker`)"
+      service: "odoo"
+      entryPoints:
+        - "web"
+
+  services:
+    odoo:
+      loadBalancer:
+        servers:
+          - url: "http://odoo:8069"

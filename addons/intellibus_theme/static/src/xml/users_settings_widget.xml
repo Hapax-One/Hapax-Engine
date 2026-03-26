@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <div t-name="intellibus_theme.IntellibusUsersSettings" owl="1" class="intellibus-users-settings-container">
+        <div class="intellibus-users-overview">
+            <div class="intellibus-users-summary-stat">
+                <i data-lucide="users"/>
+                <span t-esc="activeUsersLabel"/>
+            </div>
+            <button type="button" class="intellibus-users-manage-link" t-on-click="openUsersList">
+                <i data-lucide="arrow-right"/>
+                <span t-esc="manageUsersLabel"/>
+            </button>
+        </div>
+
+        <div class="intellibus-users-invite-card">
+            <div class="intellibus-users-invite-copy">
+                <h2 class="intellibus-users-section-title" t-esc="inviteSectionTitle"/>
+                <p class="intellibus-users-section-description" t-esc="inviteSectionDescription"/>
+            </div>
+
+            <div class="intellibus-users-invite-panel">
+                <div class="intellibus-users-invite-row">
+                    <input
+                        t-ref="emailInput"
+                        t-model="state.emails"
+                        t-att-disabled="state.status !== 'idle'"
+                        class="intellibus-users-invite-input"
+                        t-on-keydown="onKeydownUserEmails"
+                        type="text"
+                        t-att-placeholder="invitePlaceholder"
+                    />
+                    <button
+                        type="button"
+                        class="intellibus-users-primary-button"
+                        t-att-disabled="state.status !== 'idle'"
+                        t-on-click="sendInvite"
+                    >
+                        <t t-esc="inviteButtonText"/>
+                    </button>
+                </div>
+
+                <button type="button" class="intellibus-users-secondary-button" t-on-click="focusInviteInput">
+                    <i data-lucide="plus"/>
+                    <span t-esc="addAnotherLabel"/>
+                </button>
+
+                <p class="intellibus-users-invite-helper" t-esc="inviteHelperText"/>
+
+                <t t-if="pendingUsers.length">
+                    <div class="intellibus-users-pending-block">
+                        <p class="intellibus-users-pending-title" t-esc="pendingInvitationsLabel"/>
+                        <div class="intellibus-users-pending-list">
+                            <button
+                                t-foreach="pendingUsers"
+                                t-as="pendingUser"
+                                t-key="pendingUser[0]"
+                                type="button"
+                                class="intellibus-users-pending-chip"
+                                t-on-click="(ev) => this.onClickPendingInvite(ev, pendingUser)"
+                            >
+                                <t t-esc="pendingUser[1]"/>
+                            </button>
+                        </div>
+                        <button
+                            t-if="pendingUsers.length &lt; state.invite.pending_count"
+                            type="button"
+                            class="intellibus-users-pending-more"
+                            t-on-click="onClickMore"
+                        >
+                            <t t-esc="getPendingMoreLabel(state.invite.pending_count - pendingUsers.length)"/>
+                        </button>
+                    </div>
+                </t>
+            </div>
+        </div>
+
+        <div class="intellibus-users-table-section">
+            <div class="intellibus-users-table-header">
+                <div>
+                    <h2 class="intellibus-users-section-title" t-esc="teamMembersTitle"/>
+                    <p class="intellibus-users-section-description" t-esc="teamMembersDescription"/>
+                </div>
+            </div>
+
+            <div class="intellibus-users-table-card">
+                <table class="intellibus-users-table">
+                    <thead>
+                        <tr>
+                            <th class="intellibus-users-name-column">
+                                <label class="intellibus-users-checkbox-label">
+                                    <input type="checkbox" t-att-checked="isAllSelected" t-on-change="toggleAllUsers"/>
+                                    <span t-esc="nameColumnLabel"/>
+                                </label>
+                            </th>
+                            <th t-esc="loginColumnLabel"/>
+                            <th t-esc="languageColumnLabel"/>
+                            <th t-esc="latestAuthColumnLabel"/>
+                            <th t-esc="companyColumnLabel"/>
+                            <th t-esc="statusColumnLabel"/>
+                            <th class="intellibus-users-action-column"/>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-if="!state.users.length">
+                            <td colspan="7" class="intellibus-users-empty-state">
+                                <t t-esc="noUsersLabel"/>
+                            </td>
+                        </tr>
+                        <tr t-foreach="state.users" t-as="user" t-key="user.id">
+                            <td class="intellibus-users-user-cell">
+                                <div class="intellibus-users-user-main">
+                                    <input
+                                        type="checkbox"
+                                        t-att-checked="isUserSelected(user.id)"
+                                        t-on-change="(ev) => this.toggleUserSelection(user.id, ev)"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="intellibus-users-user-button"
+                                        t-on-click="() => this.openUser(user.id)"
+                                    >
+                                        <img t-att-src="user.avatarUrl" t-att-alt="user.name" class="intellibus-users-avatar"/>
+                                        <span class="intellibus-users-user-meta">
+                                            <span class="intellibus-users-user-name" t-esc="user.name"/>
+                                            <span class="intellibus-users-user-login" t-esc="user.login"/>
+                                        </span>
+                                    </button>
+                                </div>
+                            </td>
+                            <td t-esc="user.login"/>
+                            <td t-esc="user.languageLabel"/>
+                            <td t-esc="user.lastLoginLabel"/>
+                            <td t-esc="user.companyName"/>
+                            <td>
+                                <span class="intellibus-users-status" t-att-class="user.isAdmin ? 'is-admin' : 'is-member'">
+                                    <t t-esc="user.statusLabel"/>
+                                </span>
+                            </td>
+                            <td class="intellibus-users-row-actions">
+                                <button
+                                    type="button"
+                                    class="intellibus-users-row-action"
+                                    t-on-click="() => this.openUser(user.id)"
+                                    t-att-aria-label="openUserLabel"
+                                >
+                                    <i data-lucide="more-vertical"/>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</templates>

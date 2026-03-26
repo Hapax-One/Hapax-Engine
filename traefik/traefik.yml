@@ -11,5 +11,6 @@ api:
   insecure: true
 
 providers:
-  docker:
-    exposedByDefault: false
+  file:
+    filename: "/routes.yml"
+    watch: true

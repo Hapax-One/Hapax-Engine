@@ -1,0 +1,904 @@
+/* Intellibus Settings Shell */
+@keyframes intellibus-settings-submenu-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.o_setting_container {
+    --intellibus-settings-page-bg: #f8fafc;
+    --intellibus-settings-surface: #ffffff;
+    --intellibus-settings-surface-subtle: #f8fafc;
+    --intellibus-settings-surface-muted: #f1f5f9;
+    --intellibus-settings-border: #e2e8f0;
+    --intellibus-settings-border-strong: #d0d5dd;
+    --intellibus-settings-heading: #101828;
+    --intellibus-settings-text: #344054;
+    --intellibus-settings-muted: #667085;
+    --intellibus-settings-icon: #64748b;
+    --intellibus-settings-shadow: 0 16px 32px rgba(15, 23, 42, 0.06);
+    --intellibus-settings-card-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --intellibus-settings-input-bg: #ffffff;
+    --intellibus-settings-input-border: #d0d5dd;
+    background: var(--intellibus-settings-page-bg);
+
+    .intellibus-block-hidden {
+        display: none !important;
+    }
+
+    > .position-sticky {
+        flex: 0 0 252px;
+        width: 252px;
+        align-self: stretch;
+    }
+
+    .settings_tab.intellibus-settings-tab {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 252px !important;
+        height: 100% !important;
+        padding: 12px 8px 20px !important;
+        background: var(--intellibus-settings-surface) !important;
+        border-right: 1px solid var(--intellibus-settings-border) !important;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .intellibus-settings-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .intellibus-settings-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .intellibus-settings-item,
+    .intellibus-settings-subitem {
+        width: 100%;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        box-shadow: none;
+        cursor: pointer;
+        text-align: left;
+        transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease,
+            transform 0.2s ease;
+
+        &:focus-visible {
+            outline: 2px solid var(--intellibus-brand-color);
+            outline-offset: 2px;
+        }
+    }
+
+    .intellibus-settings-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 44px;
+        padding: 0 12px;
+        color: var(--intellibus-settings-text);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+
+        &:hover {
+            background: var(--intellibus-settings-surface-subtle);
+            color: var(--intellibus-brand-color);
+        }
+
+        &.is-selected {
+            background: var(--intellibus-brand-soft);
+            color: var(--intellibus-brand-color);
+            box-shadow: inset 0 0 0 1px
+                color-mix(in srgb, var(--intellibus-brand-color) 12%, transparent);
+        }
+    }
+
+    .intellibus-settings-item-content {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .intellibus-settings-item-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+
+        .lucide {
+            width: 18px;
+            height: 18px;
+            color: var(--intellibus-settings-icon);
+            stroke: var(--intellibus-settings-icon);
+            stroke-width: 1.75;
+        }
+    }
+
+    .intellibus-settings-item-label,
+    .intellibus-settings-subitem-label {
+        overflow: hidden;
+        min-width: 0;
+        font-family: "Inter", sans-serif;
+        font-style: normal;
+        letter-spacing: 0;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .intellibus-settings-item-label {
+        color: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+
+    .intellibus-settings-item-chevron {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        color: #94a3b8;
+        transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+
+        .lucide {
+            width: 18px;
+            height: 18px;
+            stroke-width: 1.75;
+        }
+    }
+
+    .intellibus-settings-item.is-expanded .intellibus-settings-item-chevron {
+        transform: rotate(180deg);
+    }
+
+    .intellibus-settings-item:hover .intellibus-settings-item-icon .lucide,
+    .intellibus-settings-item.is-selected .intellibus-settings-item-icon .lucide,
+    .intellibus-settings-item.is-selected .intellibus-settings-item-chevron {
+        color: var(--intellibus-brand-color);
+        stroke: var(--intellibus-brand-color);
+    }
+
+    .intellibus-settings-submenu {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+        padding: 0 0 6px;
+        animation: intellibus-settings-submenu-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-origin: top;
+    }
+
+    .intellibus-settings-subitem {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 12px 0 44px;
+        color: var(--intellibus-settings-text);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+
+        &:hover {
+            background: var(--intellibus-settings-surface-subtle);
+            color: var(--intellibus-brand-color);
+        }
+
+        &.is-active {
+            background: var(--intellibus-brand-soft);
+            color: var(--intellibus-brand-color);
+            box-shadow: inset 0 0 0 1px
+                color-mix(in srgb, var(--intellibus-brand-color) 10%, transparent);
+        }
+    }
+
+    .settings {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding-bottom: 48px;
+        background: var(--intellibus-settings-page-bg);
+    }
+
+    .intellibus-settings-page-header {
+        padding: 32px 32px 12px;
+    }
+
+    .intellibus-settings-page-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 760px;
+    }
+
+    .intellibus-settings-page-title {
+        margin: 0;
+        color: var(--intellibus-settings-heading);
+        font-family: "Inter", sans-serif;
+        font-size: clamp(32px, 4vw, 52px);
+        font-weight: 600;
+        line-height: 1.08;
+        letter-spacing: -0.04em;
+    }
+
+    .intellibus-settings-page-subtitle {
+        margin: 0;
+        color: var(--intellibus-settings-muted);
+        font-size: 15px;
+        line-height: 24px;
+    }
+
+    .app_settings_block.intellibus-settings-app {
+        display: flex;
+        flex-direction: column;
+        gap: 28px;
+        padding: 8px 32px 0;
+        background: transparent;
+    }
+
+    .settingSearchHeader {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        align-self: flex-start;
+        padding: 10px 14px;
+        border: 1px solid var(--intellibus-settings-border);
+        border-radius: 14px;
+        background: var(--intellibus-settings-surface);
+        box-shadow: var(--intellibus-settings-card-shadow);
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+        }
+
+        .appName {
+            color: var(--intellibus-settings-text);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+        }
+    }
+
+    .intellibus-settings-block-title {
+        margin: 0;
+        color: var(--intellibus-settings-heading);
+        font-family: "Inter", sans-serif;
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 36px;
+        letter-spacing: -0.02em;
+    }
+
+    .intellibus-settings-block-tip {
+        margin: 8px 0 0;
+        color: var(--intellibus-settings-muted) !important;
+        font-size: 14px;
+        line-height: 22px;
+    }
+
+    .o_settings_container.intellibus-settings-block-body {
+        --bs-gutter-x: 16px;
+        --bs-gutter-y: 16px;
+        margin: 0;
+        align-items: stretch;
+    }
+
+    .o_settings_container.intellibus-settings-block-body > * {
+        margin-top: 0;
+    }
+
+    .o_settings_container.intellibus-settings-block-body > .o_setting_box {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        min-height: 100%;
+        margin: 0;
+        padding: 22px;
+        border: 1px solid var(--intellibus-settings-border);
+        border-radius: 20px;
+        background: var(--intellibus-settings-surface);
+        box-shadow: var(--intellibus-settings-card-shadow);
+    }
+
+    .o_settings_container.intellibus-settings-block-body > .intellibus-users-block-body {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .o_setting_left_pane {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        flex: 0 0 24px;
+        width: 24px;
+        padding-top: 2px;
+    }
+
+    .o_setting_right_pane {
+        flex: 1 1 auto;
+        min-width: 0;
+        color: var(--intellibus-settings-text);
+    }
+
+    .o_setting_right_pane > .o_form_label,
+    .o_setting_right_pane label.o_form_label {
+        margin: 0;
+        color: var(--intellibus-settings-heading);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 24px;
+    }
+
+    .o_setting_right_pane > .text-muted,
+    .o_setting_right_pane .text-muted {
+        color: var(--intellibus-settings-muted) !important;
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .o_setting_right_pane .mt16 {
+        margin-top: 16px !important;
+    }
+
+    .o_setting_right_pane .btn-link,
+    .o_setting_right_pane a.btn-link,
+    .o_setting_right_pane button.btn-link {
+        padding: 0;
+        color: var(--intellibus-brand-color);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .o_setting_right_pane .o_doc_link {
+        margin-inline-start: 8px;
+    }
+
+    .o_setting_box .o_input,
+    .o_setting_box .form-control,
+    .o_setting_box input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+    .o_setting_box select,
+    .o_setting_box textarea {
+        border-color: var(--intellibus-settings-input-border);
+        border-radius: 12px;
+        background: var(--intellibus-settings-input-bg);
+        box-shadow: none;
+        color: var(--intellibus-settings-text);
+    }
+
+    .o_setting_box .o_input:focus,
+    .o_setting_box .form-control:focus,
+    .o_setting_box input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus,
+    .o_setting_box select:focus,
+    .o_setting_box textarea:focus {
+        border-color: color-mix(in srgb, var(--intellibus-brand-color) 32%, transparent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--intellibus-brand-color) 14%, transparent);
+    }
+
+    .o_setting_box input[type="checkbox"],
+    .o_setting_box input[type="radio"] {
+        accent-color: var(--intellibus-brand-color);
+    }
+
+    .app_settings_header {
+        margin: 0;
+        padding: 20px 24px !important;
+        border: 1px solid var(--intellibus-settings-border);
+        border-radius: 20px;
+        background: var(--intellibus-settings-surface-muted) !important;
+        box-shadow: var(--intellibus-settings-card-shadow);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .intellibus-settings-item,
+        .intellibus-settings-subitem,
+        .intellibus-settings-item-chevron,
+        .settingSearchHeader,
+        .o_setting_box {
+            transition: none !important;
+        }
+
+        .intellibus-settings-submenu {
+            animation: none !important;
+        }
+    }
+}
+
+.intellibus-users-settings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    padding: 0;
+    font-family: "Inter", sans-serif;
+    color: var(--intellibus-settings-text);
+
+    .intellibus-users-overview {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        width: 100%;
+        padding: 20px 24px;
+        border: 1px solid var(--intellibus-settings-border);
+        border-radius: 20px;
+        background: var(--intellibus-settings-surface);
+        box-shadow: var(--intellibus-settings-card-shadow);
+    }
+
+    .intellibus-users-summary-stat,
+    .intellibus-users-manage-link,
+    .intellibus-users-secondary-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .intellibus-users-summary-stat,
+    .intellibus-users-manage-link {
+        color: var(--intellibus-settings-text);
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 24px;
+    }
+
+    .intellibus-users-manage-link,
+    .intellibus-users-secondary-button,
+    .intellibus-users-row-action,
+    .intellibus-users-pending-chip,
+    .intellibus-users-pending-more {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .intellibus-users-manage-link,
+    .intellibus-users-secondary-button,
+    .intellibus-users-pending-more {
+        color: var(--intellibus-brand-color);
+        font-weight: 600;
+    }
+
+    .intellibus-users-summary-stat .lucide,
+    .intellibus-users-manage-link .lucide,
+    .intellibus-users-secondary-button .lucide,
+    .intellibus-users-row-action .lucide {
+        width: 18px;
+        height: 18px;
+        stroke-width: 2;
+    }
+
+    .intellibus-users-invite-card,
+    .intellibus-users-table-card {
+        width: 100%;
+        border: 1px solid var(--intellibus-settings-border);
+        border-radius: 20px;
+        background: var(--intellibus-settings-surface);
+        box-shadow: var(--intellibus-settings-card-shadow);
+    }
+
+    .intellibus-users-invite-card {
+        display: grid;
+        grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+        gap: 24px;
+        padding: 24px;
+        align-items: start;
+    }
+
+    .intellibus-users-invite-copy,
+    .intellibus-users-table-header {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .intellibus-users-section-title {
+        margin: 0;
+        color: var(--intellibus-settings-heading);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 24px;
+    }
+
+    .intellibus-users-section-description,
+    .intellibus-users-invite-helper,
+    .intellibus-users-user-login,
+    .intellibus-users-table td,
+    .intellibus-users-table tbody button,
+    .intellibus-users-table tbody td,
+    .intellibus-users-empty-state,
+    .intellibus-users-pending-title {
+        color: var(--intellibus-settings-muted);
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+
+    .intellibus-users-section-description,
+    .intellibus-users-invite-helper,
+    .intellibus-users-pending-title {
+        margin: 0;
+    }
+
+    .intellibus-users-invite-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        min-width: 0;
+    }
+
+    .intellibus-users-invite-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .intellibus-users-invite-input {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 14px;
+        border: 1px solid var(--intellibus-settings-input-border);
+        border-radius: 12px;
+        background: var(--intellibus-settings-input-bg);
+        box-shadow: none;
+        color: var(--intellibus-settings-text);
+        font-size: 16px;
+        line-height: 24px;
+
+        &:focus {
+            border-color: color-mix(in srgb, var(--intellibus-brand-color) 32%, transparent);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--intellibus-brand-color) 14%, transparent);
+            outline: 0;
+        }
+    }
+
+    .intellibus-users-primary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        min-width: 148px;
+        min-height: 48px;
+        padding: 10px 18px;
+        border: 1px solid var(--intellibus-brand-color);
+        border-radius: 12px;
+        background: var(--intellibus-brand-color);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 24px;
+        cursor: pointer;
+        transition: filter 0.2s ease, transform 0.2s ease;
+
+        &:hover {
+            filter: brightness(0.96);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+    }
+
+    .intellibus-users-secondary-button {
+        align-self: flex-start;
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .intellibus-users-pending-block {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .intellibus-users-pending-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .intellibus-users-pending-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 12px;
+        border: 1px solid var(--intellibus-settings-border);
+        border-radius: 999px;
+        background: var(--intellibus-settings-surface-subtle);
+        color: var(--intellibus-settings-text);
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .intellibus-users-table-section {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .intellibus-users-table-header {
+        max-width: 360px;
+    }
+
+    .intellibus-users-table-card {
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+
+    .intellibus-users-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0;
+
+        th,
+        td {
+            height: 72px;
+            padding: 16px 24px;
+            text-align: left;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--intellibus-settings-border);
+        }
+
+        thead th {
+            background: var(--intellibus-settings-surface-subtle);
+            color: var(--intellibus-settings-muted);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 18px;
+            height: 48px;
+            padding-top: 12px;
+            padding-bottom: 12px;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        tbody tr:hover td {
+            background: var(--intellibus-settings-surface-subtle);
+        }
+
+        td:not(.intellibus-users-user-cell) {
+            white-space: nowrap;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            border: 1px solid var(--intellibus-settings-input-border);
+            border-radius: 6px;
+            accent-color: var(--intellibus-brand-color);
+            cursor: pointer;
+        }
+    }
+
+    .intellibus-users-name-column {
+        min-width: 340px;
+    }
+
+    .intellibus-users-checkbox-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+    }
+
+    .intellibus-users-user-main,
+    .intellibus-users-user-button {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .intellibus-users-user-button {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .intellibus-users-avatar {
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--intellibus-settings-border);
+        border-radius: 999px;
+        object-fit: cover;
+        background: var(--intellibus-settings-surface-subtle);
+        flex-shrink: 0;
+    }
+
+    .intellibus-users-user-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .intellibus-users-user-name {
+        color: var(--intellibus-settings-heading);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+        white-space: nowrap;
+    }
+
+    .intellibus-users-status {
+        color: var(--intellibus-settings-text);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+
+        &.is-admin {
+            color: var(--intellibus-brand-color);
+        }
+    }
+
+    .intellibus-users-action-column {
+        width: 68px;
+    }
+
+    .intellibus-users-row-actions {
+        text-align: right;
+    }
+
+    .intellibus-users-row-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #98a2b3;
+    }
+
+    .intellibus-users-empty-state {
+        padding: 32px 24px;
+        text-align: center;
+    }
+
+    @media (max-width: 1200px) {
+        .intellibus-users-overview {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .intellibus-users-invite-card {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    @media (max-width: 920px) {
+        .intellibus-users-invite-row {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .intellibus-users-primary-button {
+            width: 100%;
+        }
+    }
+}
+
+.intellibus-branding-setting {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+}
+
+.intellibus-branding-setting-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 520px;
+}
+
+.intellibus-branding-setting-title {
+    color: var(--intellibus-settings-heading);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+.intellibus-branding-setting-description {
+    color: var(--intellibus-settings-muted);
+    font-size: 14px;
+    line-height: 20px;
+}
+
+.intellibus-branding-setting-control {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 172px;
+}
+
+.intellibus-branding-setting-control .o_field_widget,
+.intellibus-branding-setting-control .o_input {
+    margin: 0;
+}
+
+.intellibus-branding-setting-control input[type="color"] {
+    width: 84px;
+    height: 52px;
+    padding: 6px;
+    border: 1px solid var(--intellibus-settings-input-border);
+    border-radius: 16px;
+    background: var(--intellibus-settings-input-bg);
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.intellibus-branding-setting-control input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.intellibus-branding-setting-control input[type="color"]::-webkit-color-swatch {
+    border: 0;
+    border-radius: 10px;
+}
+
+@media (max-width: 992px) {
+    .o_setting_container {
+        flex-direction: column;
+
+        > .position-sticky {
+            flex-basis: auto;
+            width: 100%;
+        }
+
+        .settings_tab.intellibus-settings-tab {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 40vh;
+            border-right: 0 !important;
+            border-bottom: 1px solid var(--intellibus-settings-border) !important;
+        }
+
+        .intellibus-settings-page-header,
+        .app_settings_block.intellibus-settings-app {
+            padding-inline: 20px;
+        }
+
+        .intellibus-settings-block-title {
+            font-size: 24px;
+            line-height: 32px;
+        }
+    }
+
+    .intellibus-branding-setting {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .intellibus-branding-setting-control {
+        justify-content: flex-start;
+        min-width: 0;
+    }
+}

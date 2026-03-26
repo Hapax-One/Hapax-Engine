@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="intellibus_theme.SettingsPage" t-inherit="web.SettingsPage" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('settings_tab')]" position="replace">
+            <div class="settings_tab intellibus-settings-tab h-100" t-if="!env.isSmall or state.search.value.length === 0" t-ref="settings_tab">
+                <nav class="intellibus-settings-nav" role="tablist" aria-label="Settings modules">
+                    <t t-foreach="props.modules" t-as="module" t-key="module.key">
+                        <div
+                            class="intellibus-settings-group"
+                            t-att-class="{ 'is-open': state.selectedTab === module.key and state.search.value.length === 0 and intellibusNav.blocks.length }"
+                            t-if="!module.isVisible"
+                        >
+                            <button
+                                type="button"
+                                class="intellibus-settings-item"
+                                t-att-class="{
+                                    'is-selected': state.selectedTab === module.key and state.search.value.length === 0,
+                                    'is-expanded': state.selectedTab === module.key and state.search.value.length === 0 and intellibusNav.blocks.length,
+                                }"
+                                t-att-id="'intellibus-settings-tab-' + module.key"
+                                t-att-data-key="module.key"
+                                t-att-aria-controls="getSettingsAppPanelId(module.key)"
+                                t-att-aria-selected="state.selectedTab === module.key ? 'true' : 'false'"
+                                t-att-aria-expanded="state.selectedTab === module.key and intellibusNav.blocks.length ? 'true' : 'false'"
+                                role="tab"
+                                t-on-click="() => this.onSettingTabClick(module.key)"
+                            >
+                                <span class="intellibus-settings-item-content">
+                                    <span class="intellibus-settings-item-icon">
+                                        <i t-att-data-lucide="getModuleIcon(module)"/>
+                                    </span>
+                                    <span class="intellibus-settings-item-label" t-esc="module.string"/>
+                                </span>
+                                <span class="intellibus-settings-item-chevron">
+                                    <i data-lucide="chevron-down"/>
+                                </span>
+                            </button>
+
+                            <div
+                                class="intellibus-settings-submenu"
+                                role="group"
+                                t-att-aria-labelledby="'intellibus-settings-tab-' + module.key"
+                                t-if="state.selectedTab === module.key and state.search.value.length === 0 and intellibusNav.blocks.length"
+                            >
+                                <button
+                                    t-foreach="intellibusNav.blocks"
+                                    t-as="block"
+                                    t-key="block.key"
+                                    type="button"
+                                    class="intellibus-settings-subitem"
+                                    t-att-class="{ 'is-active': intellibusNav.selectedBlockKey === block.key }"
+                                    t-att-id="block.panelId + '-tab'"
+                                    t-att-aria-controls="block.panelId"
+                                    t-att-aria-current="intellibusNav.selectedBlockKey === block.key ? 'true' : undefined"
+                                    t-att-aria-pressed="intellibusNav.selectedBlockKey === block.key ? 'true' : 'false'"
+                                    t-on-click.stop="() => this.onSettingBlockClick(block)"
+                                >
+                                    <span class="intellibus-settings-subitem-label" t-esc="block.title"/>
+                                </button>
+                            </div>
+                        </div>
+                    </t>
+                </nav>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[hasclass('settings')]/t[@t-slot='default']" position="before">
+            <div class="intellibus-settings-page-header" t-if="state.search.value.length === 0 and intellibusPage.title">
+                <div class="intellibus-settings-page-copy">
+                    <h1 class="intellibus-settings-page-title" t-esc="intellibusPage.title"/>
+                    <p class="intellibus-settings-page-subtitle" t-if="intellibusPage.subtitle" t-esc="intellibusPage.subtitle"/>
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+    <t t-name="intellibus_theme.SettingsApp" t-inherit="web.SettingsApp" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[hasclass('app_settings_block')]" position="attributes">
+            <attribute name="class" add="intellibus-settings-app" separator=" "/>
+            <attribute name="t-att-id">'intellibus-settings-app-' + props.key</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="intellibus_theme.SettingsBlock" t-inherit="web.SettingsBlock" t-inherit-mode="extension" owl="1">
+        <xpath expr="//h2" position="attributes">
+            <attribute name="class" add="intellibus-settings-block-title" separator=" "/>
+        </xpath>
+
+        <xpath expr="//h3[hasclass('o_setting_tip')]" position="attributes">
+            <attribute name="class" add="intellibus-settings-block-tip" separator=" "/>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_settings_container')]" position="attributes">
+            <attribute name="class" add="intellibus-settings-block-body" separator=" "/>
+            <attribute name="t-att-data-intellibus-block-title">props.title || ""</attribute>
+            <attribute name="t-att-data-intellibus-block-tip">props.tip || ""</attribute>
+        </xpath>
+    </t>
+</templates>

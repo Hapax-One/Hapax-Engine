@@ -1,0 +1,94 @@
+:root {
+    --intellibus-brand-soft: color-mix(in srgb, var(--intellibus-brand-color) 22%, #020617);
+    --intellibus-brand-border: color-mix(in srgb, var(--intellibus-brand-color) 40%, #020617);
+}
+
+.o_web_client > .o_action_manager {
+    background: #020617;
+}
+
+body .o_navbar {
+    background: #020617 !important;
+    border-right-color: #1e293b;
+}
+
+.intellibus-sidebar {
+    .sidebar-top,
+    .sidebar-others-menu,
+    .sidebar-bottom {
+        border-color: #1e293b;
+    }
+
+    .sidebar-bottom {
+        background: #020617;
+    }
+
+    .sidebar-company-trigger,
+    .sidebar-theme-trigger,
+    .sidebar-profile .o_user_menu .dropdown-toggle {
+        color: #e2e8f0;
+
+        &:hover,
+        &:focus,
+        &[aria-expanded="true"] {
+            background: #0f172a;
+        }
+    }
+
+    .sidebar-company-name,
+    .sidebar-nav-link,
+    .sidebar-profile .oe_topbar_name,
+    .sidebar-theme-option,
+    .sidebar-theme-option-label {
+        color: #e2e8f0 !important;
+    }
+
+    .sidebar-company-subtitle,
+    .sidebar-section-title,
+    .sidebar-company-caret,
+    .sidebar-theme-trigger,
+    .sidebar-theme-option-icon,
+    .sidebar-profile .oe_topbar_name mark,
+    .sidebar-nav-link .app-icon,
+    .sidebar-nav-link .lucide {
+        color: #94a3b8;
+        stroke: #94a3b8;
+    }
+
+    .sidebar-company-menu.dropdown-menu,
+    .sidebar-theme-menu.dropdown-menu,
+    .sidebar-profile .o_user_menu .dropdown-menu {
+        border-color: #1e293b;
+        background: #0f172a;
+        box-shadow: 0 18px 40px rgba(2, 6, 23, 0.6);
+    }
+
+    .sidebar-company-option,
+    .sidebar-theme-option {
+        &:hover {
+            background: #111827;
+        }
+    }
+
+    .sidebar-nav-link {
+        color: #e2e8f0 !important;
+
+        &:hover {
+            background: #0f172a;
+        }
+    }
+
+    .sidebar-toggle-btn {
+        color: #cbd5e1;
+
+        &:hover {
+            border-color: #334155;
+            background: #0f172a;
+        }
+    }
+
+    .sidebar-profile .o_user_avatar {
+        background: #0f172a;
+        border-color: #334155;
+    }
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_intellibus" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.intellibus</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='invite_users']" position="replace">
+                <div id="invite_users">
+                    <block title="Users" name="users_setting_container">
+                        <div class="intellibus-users-block-body">
+                            <widget name="intellibus_users_settings"/>
+                        </div>
+                    </block>
+                </div>
+            </xpath>
+
+            <xpath expr="//div[@id='companies']" position="after">
+                <div id="intellibus_branding">
+                    <block title="Branding" name="intellibus_branding_container">
+                        <setting
+                            id="intellibus_brand_color_setting"
+                            string="Company accent"
+                            help="Choose the accent color used by the sidebar, settings navigation, and primary theme actions for the current company."
+                        >
+                            <div class="intellibus-branding-setting">
+                                <div class="intellibus-branding-setting-copy">
+                                    <span class="intellibus-branding-setting-title">Accent color</span>
+                                    <span class="intellibus-branding-setting-description">
+                                        This updates the active navigation states and key interface highlights for the selected company.
+                                    </span>
+                                </div>
+                                <div class="intellibus-branding-setting-control">
+                                    <field
+                                        name="intellibus_primary_color"
+                                        widget="color"
+                                        nolabel="1"
+                                        class="intellibus-branding-color-field"
+                                    />
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="intellibus_webclient_color_scheme_bootstrap" inherit_id="web.webclient_bootstrap" priority="100">
+        <xpath expr="//t[@t-set='head_web']/script[last()]" position="after">
+            <script type="text/javascript">
+                (() => {
+                    const COOKIE_TTL = 24 * 60 * 60 * 365;
+                    const preferenceKey = "intellibus_color_scheme_preference";
+                    const schemeKey = "color_scheme";
+                    const readCookie = (key) => {
+                        const parts = document.cookie.split("; ");
+                        for (const part of parts) {
+                            const [cookieKey, cookieValue] = part.split(/=(.*)/);
+                            if (cookieKey === key) {
+                                return cookieValue || "";
+                            }
+                        }
+                        return "";
+                    };
+                    const writeCookie = (key, value) => {
+                        document.cookie = `${key}=${value}; path=/; max-age=${COOKIE_TTL}`;
+                    };
+                    const preference = readCookie(preferenceKey);
+                    if (!preference) {
+                        return;
+                    }
+                    const resolvedScheme = preference === "system"
+                        ? (window.matchMedia &amp;&amp; window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+                        : preference === "dark"
+                            ? "dark"
+                            : "light";
+                    if (readCookie(schemeKey) !== resolvedScheme) {
+                        writeCookie(schemeKey, resolvedScheme);
+                        window.location.replace(window.location.href);
+                    }
+                })();
+            </script>
+        </xpath>
+    </template>
+
+    <template id="intellibus_login" inherit_id="web.login" priority="100">
+        <!-- completely replace the default login layout to achieve the custom design -->
+        <xpath expr="//t[@t-call='web.login_layout']" position="replace">
+            <t t-call="web.frontend_layout">
+                <link rel="stylesheet" type="text/css" href="/intellibus_theme/static/src/css/login.css"/>
+                <div class="intellibus-login-wrapper">
+                    <div class="intellibus-login-card">
+                        
+                        <div class="intellibus-logo-container">
+                            <img src="/intellibus_theme/static/src/img/logo.png" alt="Intellibus Logo" class="intellibus-logo"/>
+                        </div>
+
+                        <h1 class="intellibus-title">Welcome back!</h1>
+                        <p class="intellibus-subtitle">Log in now and buy the items you<br/>have saved in your cart.</p>
+
+                        <form class="intellibus-login-form" role="form" t-attf-action="/web/login" method="post" onsubmit="this.action = '/web/login' + location.hash">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                            <div class="intellibus-form-group">
+                                <label for="login">Email</label>
+                                <input type="text" name="login" t-att-value="login" id="login" required="required" autofocus="autofocus" autocapitalize="off" placeholder="Enter your email"/>
+                            </div>
+
+                            <div class="intellibus-form-group intellibus-password-group">
+                                <label for="password">Password</label>
+                                <div class="intellibus-input-wrapper">
+                                    <input type="password" name="password" id="password" required="required" autocomplete="current-password" t-att-autofocus="'autofocus' if login else None" placeholder="Enter your password"/>
+                                    <span class="intellibus-password-toggle"><i class="fa fa-eye"></i></span>
+                                </div>
+                            </div>
+
+                            <div class="intellibus-form-row">
+                                <label class="intellibus-checkbox">
+                                    <input type="checkbox" name="remember" id="remember" t-att-checked="remember"/>
+                                    <span class="checkmark"></span>
+                                    <span class="label-text">Remember me</span>
+                                </label>
+                                
+                                <a t-if="reset_password_enabled" t-attf-href="/web/reset_password?{{ keep_query() }}" class="intellibus-forgot-link">Forgot password?</a>
+                            </div>
+
+                            <p class="alert alert-danger" t-if="error" role="alert">
+                                <t t-esc="error"/>
+                            </p>
+                            <p class="alert alert-success" t-if="message" role="status">
+                                <t t-esc="message"/>
+                            </p>
+
+                            <div class="intellibus-submit-group">
+                                <input type="hidden" name="redirect" t-att-value="redirect"/>
+                                <button type="submit" class="intellibus-btn intellibus-btn-primary">Login</button>
+                            </div>
+                        </form>
+
+                        <div class="intellibus-footer" t-if="signup_enabled">
+                            <span>Didn't have an acccount?</span>
+                            <a t-attf-href="/web/signup?{{ keep_query() }}" class="intellibus-register-link">Register</a>
+                        </div>
+
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Custom Signup Template -->
+    <template id="intellibus_signup" inherit_id="auth_signup.signup" priority="100">
+        <xpath expr="//t[@t-call='web.login_layout']" position="replace">
+            <t t-call="web.frontend_layout">
+                <link rel="stylesheet" type="text/css" href="/intellibus_theme/static/src/css/login.css"/>
+                <div class="intellibus-login-wrapper">
+                    <div class="intellibus-login-card">
+                        
+                        <div class="intellibus-logo-container">
+                            <img src="/intellibus_theme/static/src/img/logo.png" alt="Intellibus Logo" class="intellibus-logo"/>
+                        </div>
+
+                        <h1 class="intellibus-title">Create an Account</h1>
+                        <p class="intellibus-subtitle">Join us and start managing your workspace seamlessly.</p>
+
+                        <form class="intellibus-login-form" role="form" method="post" t-attf-action="/web/signup">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                            <t t-set="only_passwords" t-value="bool(token and not invalid_token)"/>
+
+                            <div class="intellibus-form-group" t-if="not only_passwords">
+                                <label for="login">Email</label>
+                                <input type="text" name="login" t-att-value="login" id="login" required="required" autofocus="autofocus" autocapitalize="off" placeholder="Enter your email"/>
+                            </div>
+
+                            <div class="intellibus-form-group" t-if="not only_passwords">
+                                <label for="name">Your Name</label>
+                                <input type="text" name="name" t-att-value="name" id="name" required="required" placeholder="Enter your full name"/>
+                            </div>
+
+                            <div class="intellibus-form-group intellibus-password-group">
+                                <label for="password">Password</label>
+                                <div class="intellibus-input-wrapper">
+                                    <input type="password" name="password" id="password" required="required" t-att-autofocus="'autofocus' if only_passwords else None" placeholder="Create a password"/>
+                                </div>
+                            </div>
+                            
+                            <div class="intellibus-form-group intellibus-password-group">
+                                <label for="confirm_password">Confirm Password</label>
+                                <div class="intellibus-input-wrapper">
+                                    <input type="password" name="confirm_password" id="confirm_password" required="required" placeholder="Confirm your password"/>
+                                </div>
+                            </div>
+
+                            <p class="alert alert-danger" t-if="error" role="alert">
+                                <t t-esc="error"/>
+                            </p>
+                            <input type="hidden" name="redirect" t-att-value="redirect"/>
+                            <input type="hidden" name="token" t-att-value="token"/>
+
+                            <div class="intellibus-submit-group" style="margin-top:24px;">
+                                <button type="submit" class="intellibus-btn intellibus-btn-primary">Sign up</button>
+                            </div>
+                        </form>
+
+                        <div class="intellibus-footer">
+                            <span>Already have an account?</span>
+                            <a t-attf-href="/web/login?{{ keep_query() }}" class="intellibus-register-link">Log in</a>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+    <!-- Prevent auth_oauth from injecting providers -->
+    <template id="intellibus_remove_oauth" inherit_id="auth_oauth.providers" priority="1000">
+        <xpath expr="//t" position="replace">
+            <div class="d-none"></div>
+        </xpath>
+    </template>
+</odoo>

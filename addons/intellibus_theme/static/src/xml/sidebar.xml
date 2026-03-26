@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="web.NavBar" t-inherit-mode="extension" owl="1">
+        <xpath expr="//header[hasclass('o_navbar')]" position="attributes">
+            <attribute name="t-att-class">{'intellibus-sidebar-collapsed': intellibusState.collapsed}</attribute>
+        </xpath>
+
+        <xpath expr="//nav[hasclass('o_main_navbar')]" position="replace">
+            <nav class="intellibus-sidebar">
+                <div class="d-none" t-ref="appSubMenus"></div>
+                <t t-set="companies" t-value="getCompanyOptions()"/>
+                <t t-set="hasMultipleCompanies" t-value="companies.length > 1"/>
+
+                <div class="sidebar-top">
+                    <div class="sidebar-logo-container">
+                        <div class="sidebar-logo">
+                            <i data-lucide="gallery-vertical-end" class="sidebar-logo-icon"/>
+                        </div>
+                        <div class="sidebar-brand">
+                            <t t-if="hasMultipleCompanies">
+                                <Dropdown class="'sidebar-company-dropdown'" togglerClass="'sidebar-company-trigger'" menuClass="'sidebar-company-menu'" position="'bottom-start'">
+                                    <t t-set-slot="toggler">
+                                        <span class="sidebar-company-current">
+                                            <span class="sidebar-company-copy">
+                                                <span class="sidebar-company-name" t-esc="companyService.currentCompany.name"/>
+                                                <span class="sidebar-company-subtitle">Enterprise</span>
+                                            </span>
+                                            <i data-lucide="chevrons-up-down" class="sidebar-company-caret"/>
+                                        </span>
+                                    </t>
+                                    <DropdownItem
+                                        t-foreach="companies"
+                                        t-as="company"
+                                        t-key="company.id"
+                                        class="{ 'sidebar-company-option': true, 'is-active': company.id === companyService.currentCompany.id }"
+                                        onSelected="() => this.switchCompany(company.id)"
+                                    >
+                                        <span class="sidebar-company-option-content" t-attf-style="padding-left: #{company.level * 16}px;">
+                                            <span class="sidebar-company-option-name" t-esc="company.name"/>
+                                            <i t-if="company.id === companyService.currentCompany.id" data-lucide="check" class="sidebar-company-option-check"/>
+                                        </span>
+                                    </DropdownItem>
+                                </Dropdown>
+                            </t>
+                            <t t-else="">
+                                <div class="sidebar-company-static">
+                                    <span class="sidebar-company-name" t-esc="companyService.currentCompany.name"/>
+                                    <span class="sidebar-company-subtitle">Enterprise</span>
+                                </div>
+                            </t>
+                        </div>
+                        <button class="sidebar-toggle-btn" type="button" t-on-click="toggleSidebar" title="Toggle sidebar" aria-label="Toggle sidebar">
+                            <i t-att-data-lucide="intellibusState.collapsed ? 'chevron-right' : 'chevron-left'"/>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sidebar-scrollable">
+                    <div class="sidebar-main-menu">
+                        <div class="sidebar-section-title">Main Menu</div>
+                        <div class="sidebar-nav-links">
+                            <t t-set="apps" t-value="menuService.getApps()" />
+                            <t t-foreach="apps" t-as="app" t-key="app.id">
+                                <a t-attf-class="sidebar-nav-link #{menuService.getCurrentApp() === app ? 'active' : ''}"
+                                   t-att-href="getMenuItemHref(app)"
+                                   t-on-click="() => this.onNavBarDropdownItemSelection(app)">
+                                   <i t-att-data-lucide="getLucideIcon(app)" class="app-icon"/>
+                                   <span class="app-name" t-esc="app.name" />
+                                 </a>
+                            </t>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-others-menu mt-3">
+                        <div class="sidebar-section-title">Others</div>
+                        <div class="sidebar-nav-links">
+                            <a class="sidebar-nav-link" href="/web#action=base.action_res_users">
+                                <i data-lucide="settings" class="app-icon"/>
+                                <span class="app-name">Settings</span>
+                            </a>
+                            <a class="sidebar-nav-link" href="#">
+                                <i data-lucide="message-square" class="app-icon"/>
+                                <span class="app-name">Feedback</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-bottom">
+                    <div class="sidebar-bottom-row">
+                        <Dropdown class="'sidebar-theme-dropdown'" togglerClass="'sidebar-theme-trigger'" menuClass="'sidebar-theme-menu'" position="'top-start'">
+                            <t t-set-slot="toggler">
+                                <span class="sidebar-theme-trigger-inner" title="Appearance" aria-label="Appearance">
+                                    <i t-att-data-lucide="getColorSchemeIcon()" class="sidebar-theme-trigger-icon"/>
+                                </span>
+                            </t>
+                            <DropdownItem
+                                class="{ 'sidebar-theme-option': true, 'is-active': intellibusState.colorSchemePreference === 'light' }"
+                                onSelected="() => this.setColorSchemePreference('light')"
+                            >
+                                <span class="sidebar-theme-option-content">
+                                    <span class="sidebar-theme-option-copy">
+                                        <i data-lucide="sun-medium" class="sidebar-theme-option-icon"/>
+                                        <span class="sidebar-theme-option-label">Light</span>
+                                    </span>
+                                    <i t-if="intellibusState.colorSchemePreference === 'light'" data-lucide="check" class="sidebar-theme-option-check"/>
+                                </span>
+                            </DropdownItem>
+                            <DropdownItem
+                                class="{ 'sidebar-theme-option': true, 'is-active': intellibusState.colorSchemePreference === 'dark' }"
+                                onSelected="() => this.setColorSchemePreference('dark')"
+                            >
+                                <span class="sidebar-theme-option-content">
+                                    <span class="sidebar-theme-option-copy">
+                                        <i data-lucide="moon-star" class="sidebar-theme-option-icon"/>
+                                        <span class="sidebar-theme-option-label">Dark</span>
+                                    </span>
+                                    <i t-if="intellibusState.colorSchemePreference === 'dark'" data-lucide="check" class="sidebar-theme-option-check"/>
+                                </span>
+                            </DropdownItem>
+                            <DropdownItem
+                                class="{ 'sidebar-theme-option': true, 'is-active': intellibusState.colorSchemePreference === 'system' }"
+                                onSelected="() => this.setColorSchemePreference('system')"
+                            >
+                                <span class="sidebar-theme-option-content">
+                                    <span class="sidebar-theme-option-copy">
+                                        <i data-lucide="monitor" class="sidebar-theme-option-icon"/>
+                                        <span class="sidebar-theme-option-label">System</span>
+                                    </span>
+                                    <i t-if="intellibusState.colorSchemePreference === 'system'" data-lucide="check" class="sidebar-theme-option-check"/>
+                                </span>
+                            </DropdownItem>
+                        </Dropdown>
+
+                        <div class="sidebar-profile">
+                            <div class="o_menu_systray d-flex flex-shrink-0" role="menu">
+                                <t t-foreach="systrayItems" t-as="item" t-key="item.key">
+                                    <div t-att-data-index="item.index" class="d-none"/>
+                                    <ErrorHandler onError="error => this.handleItemError(error, item)">
+                                        <t t-component="item.Component" t-props="item.props"/>
+                                    </ErrorHandler>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </xpath>
+    </t>
+</templates>
