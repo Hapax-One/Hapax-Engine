@@ -35,8 +35,70 @@
         color: #ffffff;
     }
 
+    .intellibus-inventory-action.is-muted {
+        background: #111827;
+        color: #f8fafc;
+    }
+
+    .intellibus-inventory-action.is-dark {
+        border-color: #f8fafc;
+        background: #f8fafc;
+        color: #020617;
+    }
+
     .intellibus-inventory-badge.is-category {
         background: rgba(2, 106, 162, 0.18);
         color: #7dd3fc;
+    }
+
+    .intellibus-inventory-detail-overlay {
+        background: rgba(2, 6, 23, 0.28);
+    }
+
+    .intellibus-inventory-detail-close {
+        background: #111827;
+        border-color: transparent;
+    }
+
+    .intellibus-inventory-detail-location-preview {
+        background:
+            linear-gradient(135deg, rgba(76, 132, 255, 0.22), rgba(15, 23, 42, 0.94)),
+            linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(17, 24, 39, 1) 100%);
+    }
+
+    .intellibus-inventory-detail-item-subtitle {
+        color: #e2e8f0;
+    }
+
+    .intellibus-inventory-detail-section-heading {
+        color: #cbd5e1;
+    }
+
+    .intellibus-inventory-detail-avatar {
+        color: #bfdbfe;
+    }
+
+    .intellibus-inventory-detail-user-email,
+    .intellibus-inventory-detail-user-helper,
+    .intellibus-inventory-detail-form-label,
+    .intellibus-inventory-detail-form-separator-label {
+        color: #cbd5e1;
+    }
+
+    .intellibus-inventory-detail-form-label-muted {
+        color: #64748b;
+    }
+
+    .intellibus-inventory-detail-form-selected-tag {
+        background: #0f172a;
+        border-color: #334155;
+    }
+
+    .intellibus-inventory-detail-form-selected-label {
+        color: #e2e8f0;
+    }
+
+    .intellibus-inventory-detail-form-selected-close {
+        color: #94a3b8;
     }
 }

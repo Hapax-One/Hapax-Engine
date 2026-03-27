@@ -7,7 +7,7 @@
     """,
     'author': "Nicholas Salmon",
     'category': 'Theme/Hidden',
-    'version': '17.0.1.14',
+    'version': '17.0.1.19',
     'license': 'LGPL-3',
     'depends': ['web', 'base_setup', 'auth_signup', 'auth_oauth', 'spreadsheet_dashboard'],
     'data': [
