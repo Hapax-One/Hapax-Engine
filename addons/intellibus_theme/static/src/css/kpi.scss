@@ -1,0 +1,227 @@
+.o_web_client {
+    --intellibus-kpi-surface: #ffffff;
+    --intellibus-kpi-border: #e3e8ef;
+    --intellibus-kpi-border-strong: #d0d5dd;
+    --intellibus-kpi-text: #475467;
+    --intellibus-kpi-heading: #101828;
+    --intellibus-kpi-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --intellibus-kpi-hover-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    --intellibus-kpi-badge-bg: #ecfdf3;
+    --intellibus-kpi-badge-text: #027a48;
+    --intellibus-kpi-danger-bg: #fef3f2;
+    --intellibus-kpi-danger-text: #b42318;
+    --intellibus-kpi-neutral-bg: #f2f4f7;
+    --intellibus-kpi-neutral-text: #475467;
+}
+
+.o_form_view,
+.o_form_renderer {
+    .o-form-buttonbox,
+    .oe_button_box {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 24px;
+
+        > * + * {
+            margin-left: 0 !important;
+        }
+
+        > .oe_stat_button,
+        > div > .oe_stat_button {
+            position: relative;
+            display: flex;
+            flex: 1 1 220px;
+            align-items: flex-start;
+            justify-content: flex-start;
+            min-width: 0;
+            min-height: 112px;
+            height: auto;
+            padding: 20px 16px;
+            border: 1px solid var(--intellibus-kpi-border) !important;
+            border-radius: 12px !important;
+            background: var(--intellibus-kpi-surface) !important;
+            box-shadow: var(--intellibus-kpi-shadow);
+            color: var(--intellibus-kpi-text);
+            overflow: hidden;
+            text-align: left;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease,
+                background-color 0.18s ease;
+
+            &:hover {
+                transform: translateY(-1px);
+                border-color: color-mix(
+                    in srgb,
+                    var(--intellibus-brand-color) 18%,
+                    var(--intellibus-kpi-border)
+                ) !important;
+                box-shadow: var(--intellibus-kpi-hover-shadow);
+            }
+
+            &:focus-visible {
+                outline: 2px solid
+                    color-mix(in srgb, var(--intellibus-brand-color) 28%, transparent);
+                outline-offset: 2px;
+            }
+        }
+
+        > .oe_stat_button.dropdown,
+        > div.oe_stat_button.dropdown,
+        > div.dropdown > .oe_stat_button {
+            min-width: 0;
+        }
+
+        .oe_stat_button {
+            .o_button_icon {
+                display: none !important;
+            }
+
+            .o_stat_info,
+            > span:not(.o_button_more),
+            .o_field_statinfo,
+            .o_pie_info,
+            > .d-flex.flex-column {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                width: 100%;
+                overflow: visible;
+            }
+
+            .o_button_more {
+                display: flex;
+                align-items: flex-start;
+                justify-content: flex-start;
+                width: 100%;
+                padding: 0;
+                color: var(--intellibus-kpi-text);
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 20px;
+
+                &::after {
+                    margin-left: auto;
+                }
+            }
+
+            .o_stat_text,
+            .o_pie_text,
+            > span:not(.o_button_more) {
+                order: 1;
+                width: 100%;
+                color: var(--intellibus-kpi-text);
+                font-family: "Inter", sans-serif;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 20px;
+                letter-spacing: 0;
+            }
+
+            .o_stat_value,
+            .o_pie_value {
+                order: 2;
+                display: inline-flex;
+                align-items: flex-end;
+                gap: 8px;
+                flex-wrap: wrap;
+                margin: 0;
+                color: var(--intellibus-kpi-heading) !important;
+                font-family: "Inter", sans-serif;
+                font-size: clamp(28px, 2vw, 30px);
+                font-weight: 600;
+                line-height: 38px;
+                letter-spacing: -0.02em;
+
+                .o_field_widget,
+                .oe_inline,
+                .badge {
+                    color: inherit;
+                }
+            }
+
+            .o_pie {
+                --PercentPieField-size: 28px;
+                --PercentPieField-gap: 8px;
+                margin-left: 0;
+            }
+
+            .o_stat_info.align-items-baseline,
+            .o_field_widget.o_stat_info.align-items-baseline {
+                flex-direction: row !important;
+                align-items: baseline !important;
+                justify-content: flex-start;
+                gap: 8px !important;
+
+                .o_stat_text,
+                .o_stat_value {
+                    order: 0;
+                    width: auto;
+                    white-space: nowrap;
+                }
+
+                .o_stat_text {
+                    color: var(--intellibus-kpi-text);
+                    font-size: 13px;
+                    line-height: 18px;
+                }
+
+                .o_stat_value {
+                    font-size: 16px;
+                    line-height: 24px;
+                    letter-spacing: -0.01em;
+                }
+            }
+
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 10px 2px 8px;
+                border-radius: 999px;
+                background: var(--intellibus-kpi-badge-bg);
+                color: var(--intellibus-kpi-badge-text);
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 20px;
+            }
+        }
+    }
+}
+
+@media (max-width: 991.98px) {
+    .o_form_view,
+    .o_form_renderer {
+        .o-form-buttonbox,
+        .oe_button_box {
+            gap: 12px;
+
+            > .oe_stat_button,
+            > div > .oe_stat_button {
+                flex-basis: 100%;
+                min-height: 96px;
+                padding: 18px 16px;
+            }
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .o_form_view,
+    .o_form_renderer {
+        .o-form-buttonbox,
+        .oe_button_box {
+            > .oe_stat_button,
+            > div > .oe_stat_button {
+                transition: none;
+            }
+        }
+    }
+}
+
+.o_spreadsheet_dashboard_action {
+    .o-chart-container.intellibus-dashboard-scorecard,
+    .o-chart-container.intellibus-dashboard-scorecard .o-figure-canvas {
+        border-radius: 12px;
+    }
+}

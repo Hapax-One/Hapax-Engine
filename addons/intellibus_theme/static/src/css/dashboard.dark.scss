@@ -1,0 +1,42 @@
+.o_web_client {
+    --intellibus-dashboard-page-bg: #020617;
+    --intellibus-dashboard-surface: #0f172a;
+    --intellibus-dashboard-surface-subtle: #111827;
+    --intellibus-dashboard-border: #1e293b;
+    --intellibus-dashboard-border-strong: #334155;
+    --intellibus-dashboard-text: #e2e8f0;
+    --intellibus-dashboard-muted: #94a3b8;
+    --intellibus-dashboard-heading: #f8fafc;
+    --intellibus-dashboard-shadow: none;
+    --intellibus-dashboard-shadow-lg: 0 12px 16px rgba(2, 6, 23, 0.4);
+    --intellibus-dashboard-input-bg: #020617;
+    --intellibus-dashboard-input-border: #334155;
+    --intellibus-dashboard-primary: #4c84ff;
+    --intellibus-dashboard-primary-strong: #6a96ff;
+    --intellibus-dashboard-success-bg: rgba(18, 183, 106, 0.12);
+    --intellibus-dashboard-success-text: #6ce9a6;
+    --intellibus-dashboard-warning-bg: rgba(247, 144, 9, 0.14);
+    --intellibus-dashboard-warning-text: #fdb022;
+    --intellibus-dashboard-danger-bg: rgba(240, 68, 56, 0.12);
+    --intellibus-dashboard-danger-text: #fda29b;
+    --intellibus-dashboard-info-bg: rgba(84, 118, 255, 0.14);
+    --intellibus-dashboard-info-text: #93c5fd;
+    --intellibus-dashboard-neutral-bg: rgba(148, 163, 184, 0.14);
+    --intellibus-dashboard-neutral-text: #cbd5e1;
+    --intellibus-dashboard-table-head: #111827;
+}
+
+.o_spreadsheet_dashboard_action {
+    .intellibus-inventory-search-input::placeholder {
+        color: #64748b;
+    }
+
+    .intellibus-inventory-action.is-primary {
+        color: #ffffff;
+    }
+
+    .intellibus-inventory-badge.is-category {
+        background: rgba(2, 106, 162, 0.18);
+        color: #7dd3fc;
+    }
+}

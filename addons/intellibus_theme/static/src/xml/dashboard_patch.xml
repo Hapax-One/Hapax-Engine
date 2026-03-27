@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="spreadsheet_dashboard.DashboardAction" t-inherit-mode="extension" owl="1">
+        <xpath expr="//t[@t-set-slot='layout-actions']" position="replace">
+            <t t-set-slot="layout-actions"/>
+        </xpath>
+
+        <xpath expr="//t[@t-set-slot='control-panel-navigation-additional']" position="replace">
+            <t t-set-slot="control-panel-navigation-additional"/>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_content') and hasclass('o_component_with_search_panel')]" position="replace">
+            <div class="o_content intellibus-inventory-dashboard" role="main">
+                <div class="intellibus-inventory-shell">
+                    <header class="intellibus-inventory-header">
+                        <div class="intellibus-inventory-heading">
+                            <div class="intellibus-inventory-title-row">
+                                <h1 class="intellibus-inventory-title" t-esc="getInventoryTitle()"/>
+                                <button
+                                    type="button"
+                                    class="intellibus-inventory-mini-action"
+                                    t-on-click="openInventoryCatalog"
+                                >
+                                    <span t-esc="getEditLabel()"/>
+                                </button>
+                            </div>
+                            <p class="intellibus-inventory-subtitle" t-esc="getInventorySubtitle()"/>
+                        </div>
+
+                        <div class="intellibus-inventory-toolbar">
+                            <label class="intellibus-inventory-search" t-att-aria-label="getInventorySearchPlaceholder()">
+                                <i data-lucide="search" class="intellibus-inventory-search-icon"/>
+                                <input
+                                    type="search"
+                                    class="intellibus-inventory-search-input"
+                                    t-att-value="inventoryDashboardState.query"
+                                    t-att-placeholder="getInventorySearchPlaceholder()"
+                                    t-on-input="onInventorySearchInput"
+                                />
+                            </label>
+                            <button
+                                type="button"
+                                class="intellibus-inventory-filter-button"
+                                t-on-click="resetInventoryFilters"
+                                t-att-aria-label="getResetFiltersLabel()"
+                                t-att-title="getResetFiltersLabel()"
+                            >
+                                <i data-lucide="sliders-horizontal" class="intellibus-inventory-button-icon"/>
+                            </button>
+
+                            <div class="intellibus-inventory-actions">
+                                <button
+                                    type="button"
+                                    class="intellibus-inventory-action"
+                                    t-on-click="openInventoryRestock"
+                                >
+                                    <i data-lucide="rotate-ccw" class="intellibus-inventory-button-icon"/>
+                                    <span t-esc="getRestockLabel()"/>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="intellibus-inventory-action"
+                                    t-on-click="openInventoryCheckIn"
+                                >
+                                    <i data-lucide="corner-down-left" class="intellibus-inventory-button-icon"/>
+                                    <span t-esc="getCheckInLabel()"/>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="intellibus-inventory-action"
+                                    t-on-click="openInventoryMoves"
+                                >
+                                    <i data-lucide="move-right" class="intellibus-inventory-button-icon"/>
+                                    <span t-esc="getMoveInventoryItemLabel()"/>
+                                </button>
+                                <button
+                                    type="button"
+                                    class="intellibus-inventory-action is-primary"
+                                    t-on-click="openInventoryCreate"
+                                >
+                                    <i data-lucide="plus" class="intellibus-inventory-button-icon"/>
+                                    <span t-esc="getAddInventoryItemLabel()"/>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="intellibus-inventory-filters" role="group" t-att-aria-label="getInventoryFiltersGroupLabel()">
+                            <div
+                                t-foreach="getInventoryFilterDefinitions()"
+                                t-as="definition"
+                                t-key="definition.key"
+                                class="intellibus-inventory-filter"
+                            >
+                                <select
+                                    class="intellibus-inventory-filter-select"
+                                    t-att-value="inventoryDashboardState.filters[definition.key] || ''"
+                                    t-on-change="(ev) => this.onInventoryFilterChange(definition.key, ev)"
+                                >
+                                    <option value="" t-esc="definition.label"/>
+                                    <t t-if="definition.mappedOptions">
+                                        <option
+                                            t-foreach="definition.mappedOptions.slice(1)"
+                                            t-as="option"
+                                            t-key="option.value"
+                                            t-att-value="option.value"
+                                            t-esc="option.label"
+                                        />
+                                    </t>
+                                    <t t-else="">
+                                        <option
+                                            t-foreach="definition.options"
+                                            t-as="option"
+                                            t-key="option"
+                                            t-att-value="option"
+                                            t-esc="option"
+                                        />
+                                    </t>
+                                </select>
+                                <i data-lucide="chevron-down" class="intellibus-inventory-filter-icon"/>
+                            </div>
+                        </div>
+                    </header>
+
+                    <t t-if="inventoryDashboardState.error || !inventoryDashboardState.inventoryInstalled">
+                        <section class="intellibus-inventory-feedback is-error">
+                            <h2 class="intellibus-inventory-feedback-title" t-esc="getInventoryErrorTitle()"/>
+                        </section>
+                    </t>
+                    <t t-elif="inventoryDashboardState.loading">
+                        <section class="intellibus-inventory-feedback">
+                            <h2 class="intellibus-inventory-feedback-title" t-esc="getInventoryLoadingLabel()"/>
+                        </section>
+                    </t>
+                    <t t-else="">
+                        <section class="intellibus-inventory-metrics">
+                            <article
+                                t-foreach="getInventorySummaryCards()"
+                                t-as="card"
+                                t-key="card.key"
+                                t-att-class="getInventoryMetricCardClass(card)"
+                            >
+                                <p class="intellibus-inventory-metric-label" t-esc="card.label"/>
+                                <div class="intellibus-inventory-metric-value-row">
+                                    <h2 class="intellibus-inventory-metric-value" t-esc="card.value"/>
+                                    <span t-att-class="getInventoryMetricBadgeClass(card.tone)" t-esc="card.badge"/>
+                                </div>
+                            </article>
+                        </section>
+
+                        <section class="intellibus-inventory-table-card">
+                            <t t-if="!getInventoryFilteredRowCount()">
+                                <div class="intellibus-inventory-empty-state" t-esc="getInventoryEmptyStateLabel()"/>
+                            </t>
+                            <t t-else="">
+                                <div class="intellibus-inventory-table-scroll">
+                                    <table class="intellibus-inventory-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="is-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="intellibus-inventory-checkbox"
+                                                        t-att-checked="isInventoryPageSelected() ? true : undefined"
+                                                        t-on-change="toggleInventoryPageSelection"
+                                                    />
+                                                </th>
+                                                <th
+                                                    t-foreach="getInventoryTableColumns()"
+                                                    t-as="column"
+                                                    t-key="column.key"
+                                                    t-att-class="column.className"
+                                                    t-esc="column.label"
+                                                />
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr
+                                                t-foreach="getInventoryVisibleRows()"
+                                                t-as="row"
+                                                t-key="row.id"
+                                            >
+                                                <td class="is-checkbox">
+                                                    <input
+                                                        type="checkbox"
+                                                        class="intellibus-inventory-checkbox"
+                                                        t-att-checked="isInventoryRowSelected(row.id) ? true : undefined"
+                                                        t-on-change="() => this.toggleInventoryRowSelection(row.id)"
+                                                    />
+                                                </td>
+                                                <td class="is-reference" t-esc="row.reference"/>
+                                                <td class="is-view">
+                                                    <button
+                                                        type="button"
+                                                        class="intellibus-inventory-thumbnail"
+                                                        t-att-style="getInventoryRowImageStyle(row)"
+                                                        t-att-title="row.itemName"
+                                                        t-att-aria-label="row.itemName"
+                                                        t-on-click="() => this.openInventoryRow(row)"
+                                                    >
+                                                        <span class="intellibus-inventory-thumbnail-fallback">
+                                                            <i data-lucide="package" class="intellibus-inventory-thumbnail-icon"/>
+                                                        </span>
+                                                    </button>
+                                                </td>
+                                                <td class="is-item">
+                                                    <div class="intellibus-inventory-item-cell">
+                                                        <strong class="intellibus-inventory-item-name" t-esc="row.itemName"/>
+                                                        <span class="intellibus-inventory-item-meta" t-esc="row.itemMeta"/>
+                                                    </div>
+                                                </td>
+                                                <td class="is-serial" t-esc="row.serialNumber"/>
+                                                <td class="is-qty" t-esc="formatInventoryQuantity(row.qty)"/>
+                                                <td class="is-status">
+                                                    <span
+                                                        t-att-class="getInventoryBadgeClass(row.statusTone)"
+                                                        t-esc="row.statusLabel"
+                                                    />
+                                                </td>
+                                                <td class="is-category">
+                                                    <span class="intellibus-inventory-badge is-category" t-esc="row.category"/>
+                                                </td>
+                                                <td class="is-location" t-esc="row.location"/>
+                                                <td class="is-type" t-esc="row.typeLabel"/>
+                                                <td class="is-tracking" t-esc="row.trackingLabel"/>
+                                                <td class="is-last-activity" t-esc="row.lastActivityLabel"/>
+                                                <td class="is-incoming" t-esc="formatInventoryQuantity(row.incomingQty)"/>
+                                                <td class="is-reserved" t-esc="formatInventoryQuantity(row.reservedQty)"/>
+                                                <td class="is-min-qty" t-esc="formatInventoryQuantity(row.minQty)"/>
+                                                <td class="is-latest-reference" t-esc="row.lastReference"/>
+                                                <td class="is-actions">
+                                                    <button
+                                                        type="button"
+                                                        class="intellibus-inventory-row-action"
+                                                        t-att-aria-label="getOpenInventoryItemLabel()"
+                                                        t-on-click="() => this.openInventoryRow(row)"
+                                                    >
+                                                        <i data-lucide="more-vertical" class="intellibus-inventory-button-icon"/>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <footer class="intellibus-inventory-pagination">
+                                    <button
+                                        type="button"
+                                        class="intellibus-inventory-pagination-button"
+                                        t-att-disabled="getInventoryCurrentPage() &lt;= 1 ? true : undefined"
+                                        t-on-click="goToPreviousInventoryPage"
+                                    >
+                                        <i data-lucide="arrow-left" class="intellibus-inventory-button-icon"/>
+                                        <span t-esc="getPreviousPageLabel()"/>
+                                    </button>
+
+                                    <div class="intellibus-inventory-pagination-pages" role="navigation" t-att-aria-label="getInventoryPagesLabel()">
+                                        <button
+                                            t-foreach="getInventoryPaginationItems()"
+                                            t-as="item"
+                                            t-key="item.value"
+                                            type="button"
+                                            class="intellibus-inventory-pagination-page"
+                                            t-att-class="{ 'is-active': item.type === 'page' and item.value === getInventoryCurrentPage(), 'is-ellipsis': item.type === 'ellipsis' }"
+                                            t-att-disabled="item.type === 'ellipsis' ? true : undefined"
+                                            t-on-click="() => this.onInventoryPaginationItemClick(item)"
+                                            t-esc="item.type === 'page' ? item.value : '...'"
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        class="intellibus-inventory-pagination-button"
+                                        t-att-disabled="getInventoryCurrentPage() &gt;= getInventoryPageCount() ? true : undefined"
+                                        t-on-click="goToNextInventoryPage"
+                                    >
+                                        <span t-esc="getNextPageLabel()"/>
+                                        <i data-lucide="arrow-right" class="intellibus-inventory-button-icon"/>
+                                    </button>
+                                </footer>
+                            </t>
+                        </section>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>
