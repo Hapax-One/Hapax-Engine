@@ -273,7 +273,7 @@ class HapaxApiController(Controller):
                         "partner_id": partner.id,
                         "company_id": project.company_id.id,
                         "company_ids": [(6, 0, [project.company_id.id])],
-                        "groups_id": [(6, 0, [portal_group.id])],
+                        "group_ids": [(6, 0, [portal_group.id])],
                     }
                 )
             )
@@ -323,7 +323,15 @@ class HapaxApiController(Controller):
             if not password:
                 raise ValidationError("Password is required.")
 
-            uid = request.session.authenticate(request.db, email, password)
+            auth_info = request.session.authenticate(
+                request.env,
+                {
+                    "login": email,
+                    "password": password,
+                    "type": "password",
+                },
+            )
+            uid = auth_info.get("uid")
             if not uid:
                 raise AccessDenied("Invalid email or password.")
             user = request.env["res.users"].sudo().browse(uid)

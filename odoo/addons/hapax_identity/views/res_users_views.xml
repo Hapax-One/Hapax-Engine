@@ -10,13 +10,13 @@
                         <field name="hapax_default_project_id"/>
                     </group>
                     <field name="hapax_membership_ids" nolabel="1">
-                        <tree editable="bottom">
+                        <list editable="bottom">
                             <field name="project_id"/>
                             <field name="company_id"/>
                             <field name="role"/>
                             <field name="status"/>
                             <field name="is_primary"/>
-                        </tree>
+                        </list>
                     </field>
                 </page>
             </xpath>

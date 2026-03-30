@@ -1,34 +1,33 @@
 services:
   odoo:
     image: odoo:${ODOO_VERSION:-19.0}
+    entrypoint:
+      - odoo
     restart: unless-stopped
     environment:
       HOST: ${ODOO_DB_HOST}
+      PORT: ${ODOO_DB_PORT:-25060}
       USER: ${ODOO_DB_USER}
       PASSWORD: ${ODOO_DB_PASSWORD}
       PGSSLMODE: ${PGSSLMODE:-require}
       HAPAX_BASE_DOMAIN: ${HAPAX_BASE_DOMAIN}
       HAPAX_API_COOKIE_DOMAIN: ${HAPAX_API_COOKIE_DOMAIN}
-    command: >-
-      odoo
-      --db_host=${ODOO_DB_HOST}
-      --db_port=${ODOO_DB_PORT:-25060}
-      --db_user=${ODOO_DB_USER}
-      --db_password=${ODOO_DB_PASSWORD}
-      --db-filter=^${ODOO_DB_NAME}$
-      --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons
-      --data-dir=/var/lib/odoo
-      --proxy-mode
-      --no-database-list
-      --http-port=8069
-      --longpolling-port=8072
-      --without-demo=all
-      --workers=${ODOO_WORKERS:-4}
-      --limit-time-real=${ODOO_LIMIT_TIME_REAL:-120}
-      --admin-passwd=${ODOO_ADMIN_PASSWD}
+    command:
+      - --db_host=${ODOO_DB_HOST}
+      - --db_port=${ODOO_DB_PORT:-25060}
+      - --db_user=${ODOO_DB_USER}
+      - --db_password=${ODOO_DB_PASSWORD}
+      - --db-filter=^${ODOO_DB_NAME}$
+      - --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons
+      - --data-dir=/var/lib/odoo
+      - --proxy-mode
+      - --no-database-list
+      - --http-port=8069
+      - --without-demo=all
+      - --workers=${ODOO_WORKERS:-4}
+      - --limit-time-real=${ODOO_LIMIT_TIME_REAL:-120}
     expose:
       - "8069"
-      - "8072"
     volumes:
       - hapax_staging_odoo:/var/lib/odoo
       - ../odoo/addons:/mnt/extra-addons

@@ -13,6 +13,7 @@
 3. Deploy `hapax-engine` to staging.
 4. Validate:
    - Odoo boots
+   - seed the first tenant with `scripts/seed_staging_tenant.sh staging`
    - module upgrades succeed
    - `GET /api/v1/tenant/by-host`
    - `GET /api/v1/storefront/vehicles`
@@ -33,3 +34,11 @@
 - Never point preview frontend builds at production Odoo.
 - Never expose the managed Postgres instance publicly.
 - Keep production `gohapax.com` on the current combined stack until the split stack is validated.
+- If DNS is managed outside DigitalOcean, treat A-record cutover as a separate step after staging API verification.
+
+## Staging seed data
+
+1. Copy `deploy/env/staging.seed.env.example` to `deploy/env/staging.seed.env`.
+2. Set private admin and customer credentials in that seed env file.
+3. Run `scripts/seed_staging_tenant.sh staging` on the staging host or from the checked-out repo on the droplet.
+4. Verify tenant resolution with the frontend tenant host in `X-Hapax-Tenant-Host`, even before public DNS is cut over.

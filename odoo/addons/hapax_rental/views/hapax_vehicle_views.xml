@@ -3,7 +3,7 @@
         <field name="name">hapax.vehicle.tree</field>
         <field name="model">hapax.vehicle</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="project_id"/>
                 <field name="category"/>
@@ -11,7 +11,7 @@
                 <field name="published"/>
                 <field name="daily_rate"/>
                 <field name="location_name"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -82,7 +82,7 @@
     <record id="action_hapax_vehicles" model="ir.actions.act_window">
         <field name="name">Vehicles</field>
         <field name="res_model">hapax.vehicle</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
     </record>
 
     <menuitem
