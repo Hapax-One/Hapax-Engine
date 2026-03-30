@@ -15,7 +15,11 @@ def main() -> int:
     output_path = Path(sys.argv[2])
     content = template_path.read_text()
 
-    for key, value in sorted(os.environ.items(), key=lambda item: len(item[0]), reverse=True):
+    environment = dict(os.environ)
+    if environment.get("PUBLIC_HOST") and not environment.get("PUBLIC_HOSTS"):
+        environment["PUBLIC_HOSTS"] = environment["PUBLIC_HOST"]
+
+    for key, value in sorted(environment.items(), key=lambda item: len(item[0]), reverse=True):
         content = content.replace(f"${{{key}}}", value)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

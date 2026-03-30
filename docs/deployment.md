@@ -22,6 +22,10 @@
 6. Point the frontend staging deployment at `staging-api.gohapax.com`.
 7. Promote the backend first, then the frontend.
 
+If the registrar or DNS cutover is blocked, add a temporary validation hostname to `PUBLIC_HOSTS` such as
+`staging-api.<droplet-ip>.sslip.io`, render configs again, and provision a real Let's Encrypt certificate for that host.
+This keeps preview and staging traffic on trusted HTTPS without weakening TLS verification.
+
 ## Nginx responsibilities
 
 - terminate TLS
@@ -42,3 +46,6 @@
 2. Set private admin and customer credentials in that seed env file.
 3. Run `scripts/seed_staging_tenant.sh staging` on the staging host or from the checked-out repo on the droplet.
 4. Verify tenant resolution with the frontend tenant host in `X-Hapax-Tenant-Host`, even before public DNS is cut over.
+5. For Vercel preview deployments, set `HAPAX_TENANT_HOST_OVERRIDE` and `NEXT_PUBLIC_HAPAX_TENANT_HOST_OVERRIDE`
+   to the seeded tenant host so preview domains can resolve the correct tenant while cookies still stay bound to the
+   real preview hostname.
