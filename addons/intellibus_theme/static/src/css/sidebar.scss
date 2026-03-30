@@ -1,7 +1,10 @@
 :root {
     --intellibus-brand-color: #71639e;
-    --intellibus-brand-soft: color-mix(in srgb, var(--intellibus-brand-color) 14%, white);
-    --intellibus-brand-border: color-mix(in srgb, var(--intellibus-brand-color) 28%, white);
+    --intellibus-brand-rgb: 113 99 158;
+    --intellibus-brand-soft: rgb(var(--intellibus-brand-rgb) / 0.14);
+    --intellibus-brand-border: rgb(var(--intellibus-brand-rgb) / 0.28);
+    --intellibus-brand-soft-dark: rgb(var(--intellibus-brand-rgb) / 0.18);
+    --intellibus-brand-border-dark: rgb(var(--intellibus-brand-rgb) / 0.42);
 }
 
 @keyframes intellibus-dropdown-in {

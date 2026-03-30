@@ -1,0 +1,550 @@
+.o_web_client > .o_action_manager > .o_action:has(.o_view_controller.o_list_controller),
+.o_view_controller.o_list_controller,
+.o_list_view {
+    --intellibus-table-page-bg: #020617;
+    --intellibus-table-surface: #0f172a;
+    --intellibus-table-surface-subtle: #111c31;
+    --intellibus-table-surface-muted: #162033;
+    --intellibus-table-border: #1e293b;
+    --intellibus-table-border-strong: #334155;
+    --intellibus-table-heading: #f8fafc;
+    --intellibus-table-text: #dbe7f5;
+    --intellibus-table-muted: #94a3b8;
+    --intellibus-table-icon: #64748b;
+    --intellibus-table-hover: #162033;
+    --intellibus-table-selected: rgb(var(--intellibus-brand-rgb) / 0.16);
+    --intellibus-table-shadow: none;
+    --intellibus-table-shadow-soft: none;
+}
+
+.intellibus-list-action-shell,
+.intellibus-list-control-panel {
+    --intellibus-table-brand-outline: rgb(var(--intellibus-brand-rgb) / 0.28);
+}
+
+.intellibus-list-action-shell {
+    background: var(--intellibus-table-page-bg) !important;
+}
+
+.intellibus-list-action-shell > .o_content {
+    background: transparent !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel,
+.intellibus-list-control-panel {
+    background: var(--intellibus-table-surface) !important;
+    border-color: var(--intellibus-table-border) !important;
+    box-shadow: none !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .btn:not(.btn-primary):not(.o_searchview_dropdown_toggler),
+.intellibus-list-action-shell > .o_control_panel .o_pager_previous,
+.intellibus-list-action-shell > .o_control_panel .o_pager_next,
+.intellibus-list-action-shell > .o_control_panel .o_cp_switch_buttons .btn,
+.intellibus-list-action-shell > .o_control_panel .o_back_button,
+.intellibus-list-action-shell > .o_control_panel .btn.btn-secondary,
+.intellibus-list-control-panel .btn:not(.btn-primary):not(.o_searchview_dropdown_toggler),
+.intellibus-list-control-panel .o_pager_previous,
+.intellibus-list-control-panel .o_pager_next,
+.intellibus-list-control-panel .o_cp_switch_buttons .btn,
+.intellibus-list-control-panel .o_back_button,
+.intellibus-list-control-panel .btn.btn-secondary {
+    background: var(--intellibus-table-surface) !important;
+    border-color: var(--intellibus-table-border) !important;
+    color: var(--intellibus-table-muted) !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .btn:not(.btn-primary):not(.o_searchview_dropdown_toggler):hover,
+.intellibus-list-action-shell > .o_control_panel .o_pager_previous:hover:not(:disabled),
+.intellibus-list-action-shell > .o_control_panel .o_pager_next:hover:not(:disabled),
+.intellibus-list-action-shell > .o_control_panel .o_cp_switch_buttons .btn:hover:not(:disabled),
+.intellibus-list-action-shell > .o_control_panel .o_back_button:hover:not(:disabled),
+.intellibus-list-action-shell > .o_control_panel .btn.btn-secondary:hover:not(:disabled),
+.intellibus-list-control-panel .btn:not(.btn-primary):not(.o_searchview_dropdown_toggler):hover,
+.intellibus-list-control-panel .o_pager_previous:hover:not(:disabled),
+.intellibus-list-control-panel .o_pager_next:hover:not(:disabled),
+.intellibus-list-control-panel .o_cp_switch_buttons .btn:hover:not(:disabled),
+.intellibus-list-control-panel .o_back_button:hover:not(:disabled),
+.intellibus-list-control-panel .btn.btn-secondary:hover:not(:disabled) {
+    background: var(--intellibus-table-surface-subtle) !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell .o_cp_pager,
+.intellibus-list-action-shell .o_cp_switch_buttons,
+.intellibus-list-control-panel .o_cp_pager,
+.intellibus-list-control-panel .o_cp_switch_buttons {
+    background: var(--intellibus-table-surface-subtle) !important;
+    border-color: var(--intellibus-table-border) !important;
+    box-shadow: none !important;
+}
+
+.intellibus-list-action-shell .o_search_panel,
+.intellibus-list-action-shell .o_list_view,
+.intellibus-list-action-shell .o_list_renderer,
+.intellibus-list-action-shell .o_searchview_autocomplete,
+.intellibus-list-action-shell .o_search_options,
+.intellibus-list-action-shell .o_cp_searchview .o_searchview,
+.intellibus-list-action-shell .o_searchview,
+.intellibus-list-action-shell .o_optional_columns_dropdown .dropdown-menu {
+    background: var(--intellibus-table-surface) !important;
+    border-color: var(--intellibus-table-border) !important;
+    box-shadow: none !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_cp_searchview,
+.intellibus-list-control-panel .o_cp_searchview {
+    background: transparent !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_cp_searchview .o_searchview,
+.intellibus-list-action-shell > .o_control_panel .o_searchview,
+.intellibus-list-control-panel .o_cp_searchview .o_searchview,
+.intellibus-list-control-panel .o_searchview {
+    background: var(--intellibus-table-surface-subtle) !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_searchview_input_container,
+.intellibus-list-action-shell > .o_control_panel .o_searchview_input_container .o_searchview_input,
+.intellibus-list-action-shell > .o_control_panel .o_searchview_input_container input,
+.intellibus-list-control-panel .o_searchview_input_container,
+.intellibus-list-control-panel .o_searchview_input_container .o_searchview_input,
+.intellibus-list-control-panel .o_searchview_input_container input {
+    background: transparent !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_searchview_input_container .o_searchview_input::placeholder,
+.intellibus-list-action-shell > .o_control_panel .o_searchview_input_container input::placeholder,
+.intellibus-list-control-panel .o_searchview_input_container .o_searchview_input::placeholder,
+.intellibus-list-control-panel .o_searchview_input_container input::placeholder {
+    color: var(--intellibus-table-muted) !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_searchview_facet,
+.intellibus-list-control-panel .o_searchview_facet {
+    background: var(--intellibus-table-surface-muted) !important;
+    border-color: var(--intellibus-table-border-strong) !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_facet_values,
+.intellibus-list-action-shell > .o_control_panel .o_facet_value,
+.intellibus-list-action-shell > .o_control_panel .o_facet_values_sep,
+.intellibus-list-control-panel .o_facet_values,
+.intellibus-list-control-panel .o_facet_value,
+.intellibus-list-control-panel .o_facet_values_sep {
+    background: transparent !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_searchview_facet .o_facet_remove,
+.intellibus-list-action-shell > .o_control_panel .o_searchview_facet .btn,
+.intellibus-list-action-shell > .o_control_panel .o_searchview_facet button,
+.intellibus-list-control-panel .o_searchview_facet .o_facet_remove,
+.intellibus-list-control-panel .o_searchview_facet .btn,
+.intellibus-list-control-panel .o_searchview_facet button {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: var(--intellibus-table-muted) !important;
+}
+
+.intellibus-list-action-shell > .o_control_panel .o_searchview_facet .o_facet_remove:hover,
+.intellibus-list-action-shell > .o_control_panel .o_searchview_facet .btn:hover,
+.intellibus-list-action-shell > .o_control_panel .o_searchview_facet button:hover,
+.intellibus-list-control-panel .o_searchview_facet .o_facet_remove:hover,
+.intellibus-list-control-panel .o_searchview_facet .btn:hover,
+.intellibus-list-control-panel .o_searchview_facet button:hover {
+    background: var(--intellibus-table-surface-subtle) !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell .o_list_table > thead > tr > th,
+.intellibus-list-action-shell .o_list_record_selector,
+.intellibus-list-action-shell .o_list_actions_header {
+    background: var(--intellibus-table-surface-subtle) !important;
+    color: var(--intellibus-table-muted) !important;
+    border-bottom-color: var(--intellibus-table-border) !important;
+}
+
+.intellibus-list-action-shell .o_list_table {
+    background: var(--intellibus-table-surface) !important;
+}
+
+.intellibus-list-action-shell .o_list_table > tbody > tr > td,
+.intellibus-list-action-shell .o_list_table > tbody > tr > th,
+.intellibus-list-action-shell .o_list_table > tfoot > tr > td,
+.intellibus-list-action-shell .o_list_table > tfoot > tr > th {
+    background: var(--intellibus-table-surface) !important;
+    --bs-table-bg: var(--intellibus-table-surface) !important;
+    --bs-table-accent-bg: transparent !important;
+    color: var(--intellibus-table-text) !important;
+    border-bottom-color: var(--intellibus-table-border) !important;
+}
+
+.intellibus-list-action-shell .o_list_table.table-striped > tbody > tr:nth-of-type(odd) > *,
+.intellibus-list-action-shell .o_list_table.table-striped > tbody > tr:nth-of-type(even) > * {
+    background: var(--intellibus-table-surface) !important;
+    --bs-table-bg: var(--intellibus-table-surface) !important;
+    --bs-table-accent-bg: transparent !important;
+}
+
+.intellibus-list-action-shell .o_list_table.table-hover > tbody > tr:hover > *,
+.intellibus-list-action-shell .o_list_table > tbody > tr:hover > * {
+    background: var(--intellibus-table-hover) !important;
+    --bs-table-bg: var(--intellibus-table-hover) !important;
+    --bs-table-accent-bg: var(--intellibus-table-hover) !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_data_row,
+.intellibus-list-action-shell .o_list_table .o_data_row > td,
+.intellibus-list-action-shell .o_list_table .o_data_row > th,
+.intellibus-list-action-shell .o_list_table .o_data_row .o_field_widget,
+.intellibus-list-action-shell .o_list_table .o_data_row .o_field_widget span,
+.intellibus-list-action-shell .o_list_table .o_data_row .o_field_widget div,
+.intellibus-list-action-shell .o_list_table .o_data_row a:not(.btn),
+.intellibus-list-action-shell .o_list_table .o_data_row .btn-link,
+.intellibus-list-action-shell .o_list_table .o_data_row .text-body,
+.intellibus-list-action-shell .o_list_table .o_data_row .text-dark {
+    color: var(--intellibus-table-text) !important;
+    opacity: 1 !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_data_row .text-muted,
+.intellibus-list-action-shell .o_list_table .o_data_row .text-body-secondary,
+.intellibus-list-action-shell .o_list_table .o_data_row .text-secondary {
+    color: color-mix(in srgb, var(--intellibus-table-text) 74%, var(--intellibus-table-muted)) !important;
+    opacity: 1 !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_data_row .fa,
+.intellibus-list-action-shell .o_list_table .o_data_row .oi,
+.intellibus-list-action-shell .o_list_table .o_data_row i {
+    color: var(--intellibus-table-heading) !important;
+    opacity: 1 !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_data_row .text-primary,
+.intellibus-list-action-shell .o_list_table .o_data_row .text-info {
+    color: var(--intellibus-brand-color) !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_data_row .text-warning {
+    color: #fbbf24 !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_data_row.o_selected_row > *,
+.intellibus-list-action-shell .o_list_table .o_data_row.o_data_row_selected > *,
+.intellibus-list-action-shell .o_list_table .o_data_row:focus-within > * {
+    background: var(--intellibus-table-selected) !important;
+    --bs-table-bg: var(--intellibus-table-selected) !important;
+    --bs-table-accent-bg: var(--intellibus-table-selected) !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell
+    .o_list_table
+    .o_data_row.o_selected_row
+    > .o_data_cell
+    > .o_field_widget:not(.o_readonly_modifier):not(.o_invisible_modifier),
+.intellibus-list-action-shell
+    .o_list_table
+    .o_data_row.o_selected_row
+    > .o_data_cell
+    > .o_field_widget:not(.o_readonly_modifier):not(.o_invisible_modifier)
+    .o_input,
+.intellibus-list-action-shell
+    .o_list_table
+    .o_data_row.o_selected_row
+    > .o_data_cell
+    > .o_field_widget:not(.o_readonly_modifier):not(.o_invisible_modifier)
+    .o_input_dropdown
+    > .o_input,
+.intellibus-list-action-shell
+    .o_list_table
+    .o_data_row.o_selected_row
+    > .o_data_cell
+    > .o_field_widget:not(.o_readonly_modifier):not(.o_invisible_modifier)
+    .o_datepicker
+    > .o_input {
+    background: var(--intellibus-table-surface-subtle) !important;
+    border-color: var(--intellibus-table-brand-outline) !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_list_button .btn,
+.intellibus-list-action-shell .o_list_table .o_list_button button,
+.intellibus-list-action-shell .o_list_table .o_list_record_remove button,
+.intellibus-list-action-shell .o_list_table .o_list_record_open_form_view button {
+    background: color-mix(in srgb, var(--intellibus-brand-color) 10%, var(--intellibus-table-surface-subtle)) !important;
+    border-color: color-mix(in srgb, var(--intellibus-brand-color) 34%, var(--intellibus-table-border)) !important;
+    color: var(--intellibus-brand-color) !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_list_button .btn:hover:not(:disabled):not(.disabled):not([aria-disabled="true"]),
+.intellibus-list-action-shell .o_list_table .o_list_button button:hover:not(:disabled):not(.disabled):not([aria-disabled="true"]),
+.intellibus-list-action-shell .o_list_table .o_list_record_remove button:hover:not(:disabled):not(.disabled):not([aria-disabled="true"]),
+.intellibus-list-action-shell .o_list_table .o_list_record_open_form_view button:hover:not(:disabled):not(.disabled):not([aria-disabled="true"]) {
+    background: color-mix(in srgb, var(--intellibus-brand-color) 16%, var(--intellibus-table-surface-subtle)) !important;
+    border-color: color-mix(in srgb, var(--intellibus-brand-color) 48%, var(--intellibus-table-border)) !important;
+    color: var(--intellibus-table-heading) !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_list_button .btn:disabled,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn.disabled,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn[aria-disabled="true"],
+.intellibus-list-action-shell .o_list_table .o_list_button button:disabled,
+.intellibus-list-action-shell .o_list_table .o_list_button button.disabled,
+.intellibus-list-action-shell .o_list_table .o_list_button button[aria-disabled="true"],
+.intellibus-list-action-shell .o_list_table .o_list_record_remove button:disabled,
+.intellibus-list-action-shell .o_list_table .o_list_record_remove button[aria-disabled="true"],
+.intellibus-list-action-shell .o_list_table .o_list_record_open_form_view button:disabled,
+.intellibus-list-action-shell .o_list_table .o_list_record_open_form_view button[aria-disabled="true"] {
+    background: color-mix(in srgb, var(--intellibus-brand-color) 6%, var(--intellibus-table-surface-subtle)) !important;
+    border-color: var(--intellibus-table-border) !important;
+    color: color-mix(in srgb, var(--intellibus-brand-color) 46%, var(--intellibus-table-muted)) !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_list_button .btn:disabled *,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn.disabled *,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn[aria-disabled="true"] *,
+.intellibus-list-action-shell .o_list_table .o_list_button button:disabled *,
+.intellibus-list-action-shell .o_list_table .o_list_button button.disabled *,
+.intellibus-list-action-shell .o_list_table .o_list_button button[aria-disabled="true"] *,
+.intellibus-list-action-shell .o_list_table .o_list_record_remove button:disabled *,
+.intellibus-list-action-shell .o_list_table .o_list_record_remove button[aria-disabled="true"] *,
+.intellibus-list-action-shell .o_list_table .o_list_record_open_form_view button:disabled *,
+.intellibus-list-action-shell .o_list_table .o_list_record_open_form_view button[aria-disabled="true"] *,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn:disabled .fa,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn:disabled .oi,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn.disabled .fa,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn.disabled .oi,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn[aria-disabled="true"] .fa,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn[aria-disabled="true"] .oi,
+.intellibus-list-action-shell .o_list_table .o_list_button button:disabled .fa,
+.intellibus-list-action-shell .o_list_table .o_list_button button:disabled .oi,
+.intellibus-list-action-shell .o_list_table .o_list_button button.disabled .fa,
+.intellibus-list-action-shell .o_list_table .o_list_button button.disabled .oi,
+.intellibus-list-action-shell .o_list_table .o_list_button button[aria-disabled="true"] .fa,
+.intellibus-list-action-shell .o_list_table .o_list_button button[aria-disabled="true"] .oi {
+    color: color-mix(in srgb, var(--intellibus-brand-color) 46%, var(--intellibus-table-muted)) !important;
+    opacity: 0.72 !important;
+}
+
+.intellibus-list-action-shell .o_list_table .o_list_button .btn.active,
+.intellibus-list-action-shell .o_list_table .o_list_button .btn[aria-pressed="true"],
+.intellibus-list-action-shell .o_list_table .o_list_button .btn.btn-primary,
+.intellibus-list-action-shell .o_list_table .o_list_button button.active,
+.intellibus-list-action-shell .o_list_table .o_list_button button[aria-pressed="true"],
+.intellibus-list-action-shell .o_list_table .o_list_button button.btn-primary,
+.intellibus-list-action-shell .o_list_table .o_replenish_buttons {
+    background: var(--intellibus-brand-soft) !important;
+    border-color: var(--intellibus-table-brand-outline) !important;
+    color: var(--intellibus-brand-color) !important;
+    opacity: 1 !important;
+}
+
+.o_web_client > .o_action_manager > .o_action:has(.o_view_controller.o_list_controller),
+.o_view_controller.o_list_controller {
+    background: var(--intellibus-table-page-bg);
+
+    > .o_control_panel {
+        background: var(--intellibus-table-surface) !important;
+        border-color: var(--intellibus-table-border) !important;
+        box-shadow: none;
+    }
+
+    > .o_content {
+        background: transparent;
+    }
+
+    .o_cp_pager,
+    .o_cp_switch_buttons {
+        background: var(--intellibus-table-surface-subtle) !important;
+        border-color: var(--intellibus-table-border) !important;
+        box-shadow: none;
+    }
+
+    .o_cp_searchview .o_searchview,
+    .o_searchview_autocomplete {
+        background: var(--intellibus-table-surface) !important;
+        border-color: var(--intellibus-table-border-strong) !important;
+        box-shadow: none;
+    }
+
+    .o_search_panel {
+        background: var(--intellibus-table-surface) !important;
+        border-color: var(--intellibus-table-border) !important;
+        box-shadow: none;
+    }
+
+    .o_control_panel .dropdown-menu,
+    .o_control_panel .o-dropdown--menu,
+    .o_search_options {
+        background: var(--intellibus-table-surface) !important;
+        border-color: var(--intellibus-table-border) !important;
+        box-shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
+    }
+
+    .o_control_panel .btn.btn-primary,
+    .o_control_panel .btn-primary {
+        background: var(--intellibus-brand-color) !important;
+        border-color: var(--intellibus-brand-color) !important;
+        color: #ffffff !important;
+    }
+
+    .o_control_panel .btn:not(.btn-primary):not(.o_searchview_dropdown_toggler),
+    .o_pager_previous,
+    .o_pager_next,
+    .o_cp_switch_buttons .btn,
+    .o_control_panel .o_back_button,
+    .o_control_panel .btn.btn-secondary {
+        background: var(--intellibus-table-surface) !important;
+        border-color: var(--intellibus-table-border) !important;
+        color: var(--intellibus-table-muted) !important;
+    }
+
+    .o_control_panel .btn:not(.btn-primary):not(.o_searchview_dropdown_toggler):hover,
+    .o_pager_previous:hover:not(:disabled),
+    .o_pager_next:hover:not(:disabled),
+    .o_cp_switch_buttons .btn:hover:not(:disabled),
+    .o_control_panel .o_back_button:hover:not(:disabled),
+    .o_control_panel .btn.btn-secondary:hover:not(:disabled) {
+        background: var(--intellibus-table-surface-subtle);
+        color: var(--intellibus-table-heading);
+    }
+
+    .o_control_panel .o_last_breadcrumb_item,
+    .o_control_panel .o_last_breadcrumb_item span,
+    .o_control_panel .breadcrumb-item,
+    .o_control_panel .breadcrumb-item a {
+        color: var(--intellibus-table-heading);
+    }
+
+    .o_control_panel .o_control_panel_breadcrumbs_actions .btn,
+    .o_control_panel .o_control_panel_breadcrumbs_actions a,
+    .o_cp_searchview .o_searchview_icon,
+    .o_cp_searchview .o_searchview_dropdown_toggler,
+    .o_cp_searchview .o_searchview_dropdown_toggler .oi,
+    .o_optional_columns_dropdown_toggle {
+        color: var(--intellibus-table-icon);
+    }
+
+    .o_searchview_facet {
+        background: var(--intellibus-table-surface-subtle) !important;
+        border-color: var(--intellibus-table-border) !important;
+    }
+
+    .o_searchview_facet_label {
+        background: var(--intellibus-brand-soft) !important;
+        border-inline-end-color: var(--intellibus-table-brand-outline) !important;
+        color: var(--intellibus-brand-color) !important;
+    }
+
+    .o_facet_values,
+    .o_facet_value,
+    .o_facet_values_sep {
+        color: var(--intellibus-table-text);
+    }
+}
+
+.o_list_view {
+    .o_optional_columns_dropdown .dropdown-menu {
+        background: var(--intellibus-table-surface);
+        border-color: var(--intellibus-table-border);
+        box-shadow: 0 18px 40px rgba(2, 6, 23, 0.45);
+    }
+
+    &.o_renderer_with_searchpanel,
+    &:not(.o_renderer_with_searchpanel) {
+        background: var(--intellibus-table-surface);
+        border-color: var(--intellibus-table-border);
+    }
+
+    .o_list_renderer {
+        background: transparent;
+        border-color: transparent;
+        box-shadow: none;
+    }
+
+    .o_list_table > thead > tr > th {
+        background: var(--intellibus-table-surface-subtle);
+        border-bottom-color: var(--intellibus-table-border);
+        color: var(--intellibus-table-muted);
+    }
+
+    .o_list_table > tbody > tr > td,
+    .o_list_table > tbody > tr > th,
+    .o_list_table > tfoot > tr > td,
+    .o_list_table > tfoot > tr > th {
+        background: var(--intellibus-table-surface);
+        --bs-table-bg: var(--intellibus-table-surface);
+        --bs-table-accent-bg: transparent;
+        border-bottom-color: var(--intellibus-table-border);
+        color: var(--intellibus-table-text);
+    }
+
+    .o_list_table.table-striped > tbody > tr:nth-of-type(odd) > *,
+    .o_list_table.table-striped > tbody > tr:nth-of-type(even) > * {
+        background: var(--intellibus-table-surface);
+        --bs-table-bg: var(--intellibus-table-surface);
+        --bs-table-accent-bg: transparent;
+    }
+
+    .o_list_table.table-hover > tbody > tr:hover > *,
+    .o_list_table > tbody > tr:hover > * {
+        background: var(--intellibus-table-hover);
+        --bs-table-bg: var(--intellibus-table-hover);
+        --bs-table-accent-bg: var(--intellibus-table-hover);
+    }
+}
+
+.intellibus-list-action-shell > .o_control_panel,
+.intellibus-list-control-panel {
+    .btn.btn-primary,
+    .btn-primary,
+    .btn.btn-primary:hover,
+    .btn-primary:hover,
+    .btn.btn-primary:focus,
+    .btn-primary:focus,
+    .btn-check:focus + .btn-primary {
+        background: var(--intellibus-brand-color) !important;
+        background-color: var(--intellibus-brand-color) !important;
+        border-color: var(--intellibus-brand-color) !important;
+        color: #ffffff !important;
+        box-shadow:
+            0 0 0 3px color-mix(in srgb, var(--intellibus-brand-color) 18%, transparent) !important;
+    }
+
+    .o_cp_searchview .o_searchview,
+    .o_searchview {
+        border-color: var(--intellibus-brand-color) !important;
+    }
+
+    .o_cp_searchview .o_searchview:focus-within,
+    .o_searchview:focus-within {
+        border-color: var(--intellibus-brand-color) !important;
+        box-shadow:
+            0 0 0 4px color-mix(in srgb, var(--intellibus-brand-color) 14%, transparent) !important;
+    }
+
+    .o_searchview_facet_label,
+    .o_searchview_facet_label.btn,
+    .o_searchview_facet_label.text-bg-action {
+        background: var(--intellibus-brand-soft) !important;
+        color: var(--intellibus-brand-color) !important;
+        border-inline-end-color: var(--intellibus-table-brand-outline) !important;
+    }
+
+    .o_cp_searchview .o_searchview_icon,
+    .o_cp_searchview .o_searchview_dropdown_toggler,
+    .o_cp_searchview .o_searchview_dropdown_toggler .oi,
+    .o_optional_columns_dropdown_toggle {
+        color: var(--intellibus-brand-color) !important;
+    }
+}

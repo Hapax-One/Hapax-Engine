@@ -137,18 +137,32 @@
                     </t>
                     <t t-else="">
                         <section class="intellibus-inventory-metrics">
-                            <article
-                                t-foreach="getInventorySummaryCards()"
-                                t-as="card"
-                                t-key="card.key"
-                                t-att-class="getInventoryMetricCardClass(card)"
-                            >
-                                <p class="intellibus-inventory-metric-label" t-esc="card.label"/>
-                                <div class="intellibus-inventory-metric-value-row">
-                                    <h2 class="intellibus-inventory-metric-value" t-esc="card.value"/>
-                                    <span t-att-class="getInventoryMetricBadgeClass(card.tone)" t-esc="card.badge"/>
-                                </div>
-                            </article>
+                            <t t-foreach="getInventorySummaryCards()" t-as="card" t-key="card.key">
+                                <button
+                                    t-if="card.actionKey"
+                                    type="button"
+                                    t-att-class="getInventoryMetricCardClass(card)"
+                                    t-att-aria-label="getInventoryMetricCardActionLabel(card)"
+                                    t-att-title="getInventoryMetricCardActionLabel(card)"
+                                    t-on-click="() => this.onInventorySummaryCardClick(card)"
+                                >
+                                    <p class="intellibus-inventory-metric-label" t-esc="card.label"/>
+                                    <div class="intellibus-inventory-metric-value-row">
+                                        <h2 class="intellibus-inventory-metric-value" t-esc="card.value"/>
+                                        <span t-att-class="getInventoryMetricBadgeClass(card.tone)" t-esc="card.badge"/>
+                                    </div>
+                                </button>
+                                <article
+                                    t-else=""
+                                    t-att-class="getInventoryMetricCardClass(card)"
+                                >
+                                    <p class="intellibus-inventory-metric-label" t-esc="card.label"/>
+                                    <div class="intellibus-inventory-metric-value-row">
+                                        <h2 class="intellibus-inventory-metric-value" t-esc="card.value"/>
+                                        <span t-att-class="getInventoryMetricBadgeClass(card.tone)" t-esc="card.badge"/>
+                                    </div>
+                                </article>
+                            </t>
                         </section>
 
                         <section class="intellibus-inventory-table-card">
@@ -295,13 +309,13 @@
                 <t t-if="hasInventoryDetailOpen()" t-portal="'.o_spreadsheet_dashboard_action'">
                     <div
                         class="intellibus-inventory-detail-overlay"
-                        t-att-class="{ 'is-move-mode': isInventoryMoveMode() }"
+                        t-att-class="{ 'is-move-mode': isInventoryMoveMode(), 'is-create-mode': isInventoryCreateMode() }"
                         t-on-click="closeInventoryDetail"
                         t-on-wheel="onInventoryDetailOverlayWheel"
                     >
                         <aside
                             class="intellibus-inventory-detail-sheet"
-                            t-att-class="{ 'is-move-mode': isInventoryMoveMode() }"
+                            t-att-class="{ 'is-move-mode': isInventoryMoveMode(), 'is-create-mode': isInventoryCreateMode() }"
                             role="dialog"
                             aria-modal="true"
                             t-on-click.stop=""
@@ -327,13 +341,152 @@
                             <t t-else="">
                                 <t t-set="detail" t-value="getInventoryDetail()"/>
                                 <t t-set="moveForm" t-value="getInventoryMoveForm()"/>
+                                <t t-set="createForm" t-value="getInventoryCreateForm()"/>
                                 <div
                                     class="intellibus-inventory-detail-body"
-                                    t-att-class="{ 'is-move-mode': isInventoryMoveMode() }"
+                                    t-att-class="{ 'is-move-mode': isInventoryMoveMode(), 'is-create-mode': isInventoryCreateMode() }"
                                 >
                                     <section class="intellibus-inventory-detail-panel is-primary">
                                         <div class="intellibus-inventory-detail-panel-scroll">
-                                            <t t-if="isInventoryMoveMode()">
+                                            <t t-if="isInventoryCreateMode()">
+                                                <div class="intellibus-inventory-create-form">
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <label class="intellibus-inventory-detail-form-label" t-esc="getInventoryCreateNameLabel()"/>
+                                                        <input
+                                                            type="text"
+                                                            class="intellibus-inventory-detail-form-input"
+                                                            t-att-value="createForm.name"
+                                                            t-att-placeholder="getInventoryCreateNamePlaceholder()"
+                                                            t-on-input="onInventoryCreateNameInput"
+                                                        />
+                                                    </section>
+
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <label class="intellibus-inventory-detail-form-label">
+                                                            <span t-esc="getInventoryCreateSerialLabel()"/>
+                                                            <span class="intellibus-inventory-detail-form-label-muted" t-esc="getInventoryMoveDescriptionOptionalLabel()"/>
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            class="intellibus-inventory-detail-form-input"
+                                                            t-att-value="createForm.serialNumber"
+                                                            t-att-placeholder="getInventoryCreateSerialPlaceholder()"
+                                                            t-on-input="onInventoryCreateSerialInput"
+                                                        />
+                                                    </section>
+
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <label class="intellibus-inventory-detail-form-label" t-esc="getInventoryCreateCategoryLabel()"/>
+                                                        <div class="intellibus-inventory-detail-form-select-wrap">
+                                                            <select
+                                                                class="intellibus-inventory-detail-form-select-field"
+                                                                t-att-value="createForm.categoryId || ''"
+                                                                t-on-change="onInventoryCreateCategoryChange"
+                                                            >
+                                                                <option value="" t-esc="getInventoryCreateCategoryPlaceholder()"/>
+                                                                <option
+                                                                    t-foreach="createForm.categoryOptions"
+                                                                    t-as="categoryOption"
+                                                                    t-key="categoryOption.id"
+                                                                    t-att-value="categoryOption.id"
+                                                                    t-esc="categoryOption.label"
+                                                                />
+                                                            </select>
+                                                            <i data-lucide="chevron-down" class="intellibus-inventory-detail-form-select-icon"/>
+                                                        </div>
+                                                    </section>
+
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <label class="intellibus-inventory-detail-form-label" t-esc="getInventoryCreateQuantityLabel()"/>
+                                                        <input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0"
+                                                            class="intellibus-inventory-detail-form-input"
+                                                            t-att-value="createForm.quantity"
+                                                            t-att-placeholder="getInventoryCreateQuantityPlaceholder()"
+                                                            t-on-input="onInventoryCreateQuantityInput"
+                                                        />
+                                                    </section>
+
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <label class="intellibus-inventory-detail-form-label" t-esc="getInventoryCreateLocationLabel()"/>
+                                                        <div class="intellibus-inventory-detail-form-select-wrap">
+                                                            <select
+                                                                class="intellibus-inventory-detail-form-select-field"
+                                                                t-att-value="createForm.locationId || ''"
+                                                                t-on-change="onInventoryCreateLocationChange"
+                                                            >
+                                                                <option value="" t-esc="getInventoryCreateLocationPlaceholder()"/>
+                                                                <option
+                                                                    t-foreach="createForm.locationOptions"
+                                                                    t-as="locationOption"
+                                                                    t-key="locationOption.id"
+                                                                    t-att-value="locationOption.id"
+                                                                    t-esc="locationOption.label"
+                                                                />
+                                                            </select>
+                                                            <i data-lucide="chevron-down" class="intellibus-inventory-detail-form-select-icon"/>
+                                                        </div>
+                                                    </section>
+
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <label class="intellibus-inventory-detail-form-label" t-esc="getInventoryCreateTrackingLabel()"/>
+                                                        <div class="intellibus-inventory-detail-form-select-wrap">
+                                                            <select
+                                                                class="intellibus-inventory-detail-form-select-field"
+                                                                t-att-value="createForm.tracking || 'none'"
+                                                                t-on-change="onInventoryCreateTrackingChange"
+                                                            >
+                                                                <option
+                                                                    t-foreach="getInventoryCreateTrackingOptions()"
+                                                                    t-as="trackingOption"
+                                                                    t-key="trackingOption.value"
+                                                                    t-att-value="trackingOption.value"
+                                                                    t-esc="trackingOption.label"
+                                                                />
+                                                            </select>
+                                                            <i data-lucide="chevron-down" class="intellibus-inventory-detail-form-select-icon"/>
+                                                        </div>
+                                                        <p class="intellibus-inventory-create-helper" t-esc="getInventoryCreateTrackingHelperLabel()"/>
+                                                    </section>
+
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <button
+                                                            type="button"
+                                                            class="intellibus-inventory-create-asset-card"
+                                                            t-att-aria-pressed="createForm.trackAsAsset ? 'true' : 'false'"
+                                                            t-on-click="toggleInventoryCreateTrackAsAsset"
+                                                        >
+                                                            <span class="intellibus-inventory-create-asset-copy" t-esc="getInventoryCreateAssetLabel()"/>
+                                                            <span
+                                                                class="intellibus-inventory-create-toggle"
+                                                                t-att-class="{ 'is-active': createForm.trackAsAsset }"
+                                                            >
+                                                                <span class="intellibus-inventory-create-toggle-thumb"/>
+                                                            </span>
+                                                        </button>
+                                                    </section>
+
+                                                    <section class="intellibus-inventory-create-section">
+                                                        <label class="intellibus-inventory-detail-form-label">
+                                                            <span t-esc="getInventoryCreateDescriptionLabel()"/>
+                                                            <span class="intellibus-inventory-detail-form-label-muted" t-esc="getInventoryMoveDescriptionOptionalLabel()"/>
+                                                        </label>
+                                                        <textarea
+                                                            class="intellibus-inventory-detail-form-textarea is-create-mode"
+                                                            t-att-value="createForm.description"
+                                                            t-att-placeholder="getInventoryCreateDescriptionPlaceholder()"
+                                                            t-on-input="onInventoryCreateDescriptionInput"
+                                                        />
+                                                    </section>
+
+                                                    <t t-if="createForm.error">
+                                                        <div class="intellibus-inventory-detail-form-error" t-esc="createForm.error"/>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                            <t t-elif="isInventoryMoveMode()">
                                                 <section class="intellibus-inventory-detail-move-section">
                                                     <div class="intellibus-inventory-detail-section-heading-row">
                                                         <span class="intellibus-inventory-detail-section-heading" t-esc="getInventoryMoveYouLabel()"/>
@@ -566,90 +719,255 @@
                                         </div>
                                     </section>
 
-                                    <aside class="intellibus-inventory-detail-panel is-secondary">
-                                        <section class="intellibus-inventory-detail-sidebar-section is-location">
-                                            <div class="intellibus-inventory-detail-section-heading-row">
-                                                <span class="intellibus-inventory-detail-section-heading" t-esc="getInventoryCurrentLocationLabel()"/>
-                                                <button
-                                                    type="button"
-                                                    class="intellibus-inventory-detail-inline-action"
-                                                    t-on-click="openInventoryDetailLocation"
-                                                >
-                                                    <span t-esc="getViewLabel()"/>
-                                                </button>
-                                            </div>
-                                            <div class="intellibus-inventory-detail-location-row">
-                                                <div class="intellibus-inventory-detail-location-preview">
-                                                    <i data-lucide="map-pinned" class="intellibus-inventory-detail-location-icon"/>
-                                                </div>
-                                                <div class="intellibus-inventory-detail-location-copy">
-                                                    <strong class="intellibus-inventory-detail-location-name" t-esc="detail.currentLocationName"/>
-                                                    <p class="intellibus-inventory-detail-location-path" t-esc="detail.currentLocationPath"/>
-                                                    <p class="intellibus-inventory-detail-location-meta" t-esc="detail.currentLocationMeta"/>
-                                                </div>
-                                            </div>
-                                        </section>
-
-                                        <section class="intellibus-inventory-detail-sidebar-section is-log">
-                                            <div class="intellibus-inventory-detail-section-heading-row">
-                                                <span class="intellibus-inventory-detail-section-heading" t-esc="getInventoryMoveLogLabel()"/>
-                                                <button
-                                                    type="button"
-                                                    class="intellibus-inventory-detail-inline-action"
-                                                    t-on-click="openInventoryDetailMoves"
-                                                >
-                                                    <span t-esc="getViewAllLabel()"/>
-                                                </button>
-                                            </div>
-
-                                            <t t-if="!detail.moveTimeline.length">
-                                                <div class="intellibus-inventory-detail-empty" t-esc="getInventoryDetailEmptyMovesLabel()"/>
-                                            </t>
-                                            <t t-else="">
-                                                <div class="intellibus-inventory-detail-log">
-                                                    <article
-                                                        t-foreach="detail.moveTimeline"
-                                                        t-as="move"
-                                                        t-key="move.id"
-                                                        class="intellibus-inventory-detail-log-item"
-                                                    >
-                                                        <div class="intellibus-inventory-detail-avatar" t-esc="move.actorInitials"/>
-                                                        <div class="intellibus-inventory-detail-log-copy">
-                                                            <div class="intellibus-inventory-detail-log-header">
-                                                                <strong class="intellibus-inventory-detail-log-actor" t-esc="move.actorName"/>
-                                                                <span class="intellibus-inventory-detail-log-event" t-esc="move.eventLabel"/>
-                                                            </div>
-                                                            <p class="intellibus-inventory-detail-log-description" t-esc="move.description"/>
-                                                            <div class="intellibus-inventory-detail-log-meta">
-                                                                <span class="intellibus-inventory-detail-log-date" t-esc="move.dateLabel"/>
-                                                                <span
-                                                                    t-att-class="getInventoryBadgeClass(move.stateTone)"
-                                                                    t-esc="move.stateLabel"
-                                                                />
-                                                            </div>
+                                    <t t-if="isInventoryCreateMode()">
+                                        <aside class="intellibus-inventory-detail-panel is-secondary is-create-mode">
+                                            <div class="intellibus-inventory-detail-panel-scroll is-create-mode">
+                                                <section class="intellibus-inventory-create-side-section">
+                                                    <div class="intellibus-inventory-create-side-heading" t-esc="getInventoryCreateScanPanelLabel()"/>
+                                                    <div class="intellibus-inventory-create-upload-card">
+                                                        <div class="intellibus-inventory-create-preview-frame">
+                                                            <img
+                                                                t-if="getInventoryCreateImagePreviewUrl()"
+                                                                t-att-src="getInventoryCreateImagePreviewUrl()"
+                                                                class="intellibus-inventory-create-preview-image"
+                                                                alt=""
+                                                            />
+                                                            <img
+                                                                t-else=""
+                                                                t-att-src="getInventoryCreateScanQrUrl()"
+                                                                class="intellibus-inventory-create-qr-image"
+                                                                alt=""
+                                                            />
                                                         </div>
-                                                        <span
-                                                            t-att-class="{
-                                                                'intellibus-inventory-detail-log-dot': true,
-                                                                'is-success': move.stateTone === 'success',
-                                                                'is-warning': move.stateTone === 'warning',
-                                                                'is-danger': move.stateTone === 'danger',
-                                                                'is-info': move.stateTone === 'info',
-                                                                'is-neutral': move.stateTone === 'neutral',
-                                                            }"
+                                                        <div class="intellibus-inventory-create-upload-copy">
+                                                            <button
+                                                                type="button"
+                                                                class="intellibus-inventory-create-link-button"
+                                                                t-on-click="openInventoryCreateScanner"
+                                                            >
+                                                                <span t-esc="getInventoryCreateScanActionLabel()"/>
+                                                            </button>
+                                                            <p class="intellibus-inventory-create-upload-helper">
+                                                                <span t-esc="getInventoryCreateScanSupportLabel()"/>
+                                                                <br/>
+                                                                <span t-esc="getInventoryCreateScanSupportMetaLabel()"/>
+                                                            </p>
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            accept="image/png,image/jpeg"
+                                                            class="intellibus-inventory-create-upload-input"
+                                                            t-on-change="onInventoryCreateImageChange"
                                                         />
+                                                        <button
+                                                            type="button"
+                                                            class="intellibus-inventory-create-upload-button"
+                                                            t-on-click="openInventoryCreateUpload"
+                                                        >
+                                                            <i data-lucide="paperclip" class="intellibus-inventory-button-icon"/>
+                                                            <span t-esc="getInventoryCreateUploadLabel()"/>
+                                                        </button>
+                                                        <t t-if="createForm.imageName">
+                                                            <p class="intellibus-inventory-create-upload-name" t-esc="createForm.imageName"/>
+                                                        </t>
+                                                    </div>
+                                                </section>
+
+                                                <section class="intellibus-inventory-create-side-section">
+                                                    <div class="intellibus-inventory-create-side-heading" t-esc="getInventoryCreateAssignedQrLabel()"/>
+                                                    <div class="intellibus-inventory-create-qr-card">
+                                                        <div class="intellibus-inventory-create-preview-frame">
+                                                            <img
+                                                                t-att-src="getInventoryCreateAssignedQrUrl()"
+                                                                class="intellibus-inventory-create-qr-image"
+                                                                alt=""
+                                                            />
+                                                        </div>
+                                                        <div class="intellibus-inventory-create-qr-actions">
+                                                            <button
+                                                                type="button"
+                                                                class="intellibus-inventory-create-icon-button"
+                                                                t-att-aria-label="getInventoryCreateRotateQrLabel()"
+                                                                t-att-title="getInventoryCreateRotateQrLabel()"
+                                                                t-on-click="regenerateInventoryCreateCode"
+                                                            >
+                                                                <i data-lucide="rotate-ccw" class="intellibus-inventory-button-icon"/>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                class="intellibus-inventory-create-icon-button"
+                                                                t-att-aria-label="getInventoryCreateCopyQrLabel()"
+                                                                t-att-title="getInventoryCreateCopyQrLabel()"
+                                                                t-on-click="copyInventoryCreateCode"
+                                                            >
+                                                                <i data-lucide="copy" class="intellibus-inventory-button-icon"/>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                class="intellibus-inventory-create-print-button"
+                                                                t-on-click="printInventoryCreateCode"
+                                                            >
+                                                                <span t-esc="getInventoryCreatePrintQrLabel()"/>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            </div>
+                                        </aside>
+                                    </t>
+                                    <t t-elif="isInventoryMoveMode()">
+                                        <aside class="intellibus-inventory-detail-panel is-secondary">
+                                            <section class="intellibus-inventory-detail-sidebar-section is-log">
+                                                <div class="intellibus-inventory-detail-section-heading-row">
+                                                    <span class="intellibus-inventory-detail-section-heading" t-esc="getInventoryMoveSelectedItemsLabel()"/>
+                                                    <span class="intellibus-inventory-move-selection-count" t-esc="getInventoryMoveSelectedCountLabel()"/>
+                                                </div>
+
+                                                <div class="intellibus-inventory-move-selection-list">
+                                                    <article
+                                                        t-foreach="getInventoryMoveSelectionList()"
+                                                        t-as="selectedRow"
+                                                        t-key="selectedRow.id"
+                                                        class="intellibus-inventory-move-selection-item"
+                                                    >
+                                                        <div
+                                                            class="intellibus-inventory-move-selection-thumb"
+                                                            t-att-style="'background-image: url(' + selectedRow.imageUrl + ')'"
+                                                        />
+                                                        <div class="intellibus-inventory-move-selection-copy">
+                                                            <strong class="intellibus-inventory-move-selection-title" t-esc="selectedRow.title"/>
+                                                            <span class="intellibus-inventory-move-selection-subtitle" t-esc="selectedRow.subtitle"/>
+                                                            <span class="intellibus-inventory-move-selection-location" t-esc="selectedRow.sourceLocationLabel"/>
+                                                        </div>
+                                                        <span class="intellibus-inventory-move-selection-quantity">
+                                                            <t t-esc="formatInventoryQuantity(selectedRow.onHandQty)"/>
+                                                            <t t-esc="' ' + selectedRow.uomLabel"/>
+                                                        </span>
                                                     </article>
                                                 </div>
-                                            </t>
-                                        </section>
-                                    </aside>
+                                            </section>
+                                        </aside>
+                                    </t>
+                                    <t t-else="">
+                                        <aside class="intellibus-inventory-detail-panel is-secondary">
+                                            <section class="intellibus-inventory-detail-sidebar-section is-location">
+                                                <div class="intellibus-inventory-detail-section-heading-row">
+                                                    <span class="intellibus-inventory-detail-section-heading" t-esc="getInventoryCurrentLocationLabel()"/>
+                                                    <button
+                                                        type="button"
+                                                        class="intellibus-inventory-detail-inline-action"
+                                                        t-on-click="openInventoryDetailLocation"
+                                                    >
+                                                        <span t-esc="getViewLabel()"/>
+                                                    </button>
+                                                </div>
+                                                <div class="intellibus-inventory-detail-location-row">
+                                                    <div class="intellibus-inventory-detail-location-preview">
+                                                        <i data-lucide="map-pinned" class="intellibus-inventory-detail-location-icon"/>
+                                                    </div>
+                                                    <div class="intellibus-inventory-detail-location-copy">
+                                                        <strong class="intellibus-inventory-detail-location-name" t-esc="detail.currentLocationName"/>
+                                                        <p class="intellibus-inventory-detail-location-path" t-esc="detail.currentLocationPath"/>
+                                                        <p class="intellibus-inventory-detail-location-meta" t-esc="detail.currentLocationMeta"/>
+                                                    </div>
+                                                </div>
+                                            </section>
+
+                                            <section class="intellibus-inventory-detail-sidebar-section is-log">
+                                                <div class="intellibus-inventory-detail-section-heading-row">
+                                                    <span class="intellibus-inventory-detail-section-heading" t-esc="getInventoryMoveLogLabel()"/>
+                                                    <button
+                                                        type="button"
+                                                        class="intellibus-inventory-detail-inline-action"
+                                                        t-on-click="openInventoryDetailMoves"
+                                                    >
+                                                        <span t-esc="getViewAllLabel()"/>
+                                                    </button>
+                                                </div>
+
+                                                <t t-if="!detail.moveTimeline.length">
+                                                    <div class="intellibus-inventory-detail-empty" t-esc="getInventoryDetailEmptyMovesLabel()"/>
+                                                </t>
+                                                <t t-else="">
+                                                    <div class="intellibus-inventory-detail-log">
+                                                        <article
+                                                            t-foreach="detail.moveTimeline"
+                                                            t-as="move"
+                                                            t-key="move.id"
+                                                            class="intellibus-inventory-detail-log-item"
+                                                        >
+                                                            <div class="intellibus-inventory-detail-avatar" t-esc="move.actorInitials"/>
+                                                            <div class="intellibus-inventory-detail-log-copy">
+                                                                <div class="intellibus-inventory-detail-log-header">
+                                                                    <strong class="intellibus-inventory-detail-log-actor" t-esc="move.actorName"/>
+                                                                    <span class="intellibus-inventory-detail-log-event" t-esc="move.eventLabel"/>
+                                                                </div>
+                                                                <p class="intellibus-inventory-detail-log-description" t-esc="move.description"/>
+                                                                <div class="intellibus-inventory-detail-log-meta">
+                                                                    <span class="intellibus-inventory-detail-log-date" t-esc="move.dateLabel"/>
+                                                                    <span
+                                                                        t-att-class="getInventoryBadgeClass(move.stateTone)"
+                                                                        t-esc="move.stateLabel"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <span
+                                                                t-att-class="{
+                                                                    'intellibus-inventory-detail-log-dot': true,
+                                                                    'is-success': move.stateTone === 'success',
+                                                                    'is-warning': move.stateTone === 'warning',
+                                                                    'is-danger': move.stateTone === 'danger',
+                                                                    'is-info': move.stateTone === 'info',
+                                                                    'is-neutral': move.stateTone === 'neutral',
+                                                                }"
+                                                            />
+                                                        </article>
+                                                    </div>
+                                                </t>
+                                            </section>
+                                        </aside>
+                                    </t>
                                 </div>
 
                                 <footer
                                     class="intellibus-inventory-detail-footer"
-                                    t-att-class="{ 'is-move-mode': isInventoryMoveMode() }"
+                                    t-att-class="{ 'is-move-mode': isInventoryMoveMode(), 'is-create-mode': isInventoryCreateMode() }"
                                 >
-                                    <t t-if="isInventoryMoveMode()">
+                                    <t t-if="isInventoryCreateMode()">
+                                        <div class="intellibus-inventory-detail-footer-start">
+                                            <button
+                                                type="button"
+                                                class="intellibus-inventory-action is-muted"
+                                                t-on-click="openInventoryCreateScanner"
+                                            >
+                                                <i data-lucide="scan-line" class="intellibus-inventory-button-icon"/>
+                                                <span t-esc="getInventoryMoveScanLabel()"/>
+                                            </button>
+                                        </div>
+                                        <div class="intellibus-inventory-detail-footer-actions is-create-mode">
+                                            <button
+                                                type="button"
+                                                class="intellibus-inventory-action is-secondary"
+                                                t-on-click="closeInventoryDetail"
+                                            >
+                                                <span t-esc="getInventoryCreateCloseLabel()"/>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                class="intellibus-inventory-action is-primary"
+                                                t-att-disabled="isInventoryCreateSubmitDisabled() ? true : undefined"
+                                                t-on-click="submitInventoryCreate"
+                                            >
+                                                <i
+                                                    t-if="getInventoryCreateForm().submitting"
+                                                    data-lucide="loader-circle"
+                                                    class="intellibus-inventory-button-icon"
+                                                />
+                                                <span t-esc="getInventoryCreateSubmitLabel()"/>
+                                            </button>
+                                        </div>
+                                    </t>
+                                    <t t-elif="isInventoryMoveMode()">
                                         <div class="intellibus-inventory-detail-footer-start">
                                             <button
                                                 type="button"

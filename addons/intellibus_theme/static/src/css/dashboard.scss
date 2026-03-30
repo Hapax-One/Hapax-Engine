@@ -374,6 +374,29 @@ body.intellibus-inventory-detail-open {
         padding: 16px 20px;
     }
 
+    button.intellibus-inventory-metric-card {
+        width: 100%;
+        appearance: none;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .intellibus-inventory-metric-card.is-interactive {
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+
+        &:hover {
+            border-color: var(--intellibus-dashboard-border-strong);
+            box-shadow: var(--intellibus-dashboard-shadow-lg);
+            transform: translateY(-1px);
+        }
+
+        &:focus-visible {
+            outline: 2px solid
+                color-mix(in srgb, var(--intellibus-dashboard-primary) 20%, transparent);
+            outline-offset: 2px;
+        }
+    }
+
     .intellibus-inventory-metric-label {
         margin: 0;
         color: var(--intellibus-dashboard-muted);
@@ -741,7 +764,17 @@ body.intellibus-inventory-detail-open {
         justify-content: space-between;
     }
 
+    .intellibus-inventory-detail-footer.is-create-mode {
+        justify-content: space-between;
+        padding-top: 16px;
+        padding-bottom: 24px;
+    }
+
     .intellibus-inventory-detail-footer-actions.is-move-mode {
+        margin-left: auto;
+    }
+
+    .intellibus-inventory-detail-footer-actions.is-create-mode {
         margin-left: auto;
     }
 
@@ -1066,6 +1099,75 @@ body.intellibus-inventory-detail-open {
         padding-right: 6px;
     }
 
+    .intellibus-inventory-move-selection-count {
+        color: var(--intellibus-dashboard-muted);
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    .intellibus-inventory-move-selection-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+
+    .intellibus-inventory-move-selection-item {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid var(--intellibus-dashboard-border);
+        border-radius: 12px;
+        background: var(--intellibus-dashboard-surface);
+        box-shadow: var(--intellibus-dashboard-shadow);
+    }
+
+    .intellibus-inventory-move-selection-thumb {
+        width: 44px;
+        height: 44px;
+        border: 1px solid var(--intellibus-dashboard-border);
+        border-radius: 10px;
+        background-color: var(--intellibus-dashboard-surface-subtle);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+    }
+
+    .intellibus-inventory-move-selection-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .intellibus-inventory-move-selection-title {
+        color: var(--intellibus-dashboard-heading);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+
+    .intellibus-inventory-move-selection-subtitle,
+    .intellibus-inventory-move-selection-location {
+        color: var(--intellibus-dashboard-muted);
+        font-size: 13px;
+        line-height: 18px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .intellibus-inventory-move-selection-quantity {
+        color: var(--intellibus-dashboard-heading);
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 18px;
+        white-space: nowrap;
+    }
+
     .intellibus-inventory-detail-move-section {
         display: flex;
         flex-direction: column;
@@ -1144,6 +1246,7 @@ body.intellibus-inventory-detail-open {
 
     .intellibus-inventory-detail-form-select,
     .intellibus-inventory-detail-form-select-field,
+    .intellibus-inventory-detail-form-input,
     .intellibus-inventory-detail-form-textarea {
         border: 1px solid var(--intellibus-dashboard-input-border);
         border-radius: 8px;
@@ -1163,6 +1266,14 @@ body.intellibus-inventory-detail-open {
 
     .intellibus-inventory-detail-form-select.is-readonly {
         cursor: default;
+    }
+
+    .intellibus-inventory-detail-form-input {
+        width: 100%;
+        min-height: 40px;
+        padding: 8px 12px;
+        box-shadow: var(--intellibus-dashboard-shadow);
+        outline: none;
     }
 
     .intellibus-inventory-detail-form-select-value {
@@ -1185,6 +1296,7 @@ body.intellibus-inventory-detail-open {
     }
 
     .intellibus-inventory-detail-form-select-field:focus,
+    .intellibus-inventory-detail-form-input:focus,
     .intellibus-inventory-detail-form-textarea:focus {
         border-color: color-mix(
             in srgb,
@@ -1278,6 +1390,225 @@ body.intellibus-inventory-detail-open {
         resize: none;
         box-shadow: var(--intellibus-dashboard-shadow);
         outline: none;
+    }
+
+    .intellibus-inventory-detail-form-input::placeholder,
+    .intellibus-inventory-detail-form-textarea::placeholder {
+        color: #667085;
+    }
+
+    .intellibus-inventory-create-form {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .intellibus-inventory-create-section {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .intellibus-inventory-create-helper {
+        margin: 0;
+        color: #475467;
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .intellibus-inventory-create-asset-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        width: 100%;
+        padding: 16px;
+        border: 2px dashed var(--intellibus-dashboard-border);
+        border-radius: 11px;
+        background: var(--intellibus-dashboard-surface);
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .intellibus-inventory-create-asset-copy {
+        color: #334155;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+
+    .intellibus-inventory-create-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 36px;
+        height: 20px;
+        padding: 2px;
+        border-radius: 999px;
+        background: #cbd5e1;
+        transition: background-color 0.18s ease;
+    }
+
+    .intellibus-inventory-create-toggle.is-active {
+        justify-content: flex-end;
+        background: var(--intellibus-dashboard-primary);
+    }
+
+    .intellibus-inventory-create-toggle-thumb {
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        background: #ffffff;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12);
+    }
+
+    .intellibus-inventory-detail-panel-scroll.is-create-mode {
+        gap: 20px;
+        padding: 24px;
+    }
+
+    .intellibus-inventory-detail-body.is-create-mode {
+        grid-template-columns: minmax(0, 1fr) 400px;
+    }
+
+    .intellibus-inventory-detail-panel.is-secondary.is-create-mode {
+        border-left: 1px solid var(--intellibus-dashboard-border);
+    }
+
+    .intellibus-inventory-create-side-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .intellibus-inventory-create-side-heading {
+        color: #334155;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+
+    .intellibus-inventory-create-upload-card,
+    .intellibus-inventory-create-qr-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        width: 100%;
+        padding: 24px;
+        border: 2px dashed var(--intellibus-dashboard-border);
+        border-radius: 11px;
+        background: var(--intellibus-dashboard-surface);
+    }
+
+    .intellibus-inventory-create-preview-frame {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 160px;
+        height: 160px;
+        padding: 8px;
+        border: 1px solid var(--intellibus-dashboard-border);
+        border-radius: 8px;
+        background: #ffffff;
+        overflow: hidden;
+    }
+
+    .intellibus-inventory-create-preview-image,
+    .intellibus-inventory-create-qr-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .intellibus-inventory-create-upload-copy {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+    }
+
+    .intellibus-inventory-create-link-button {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--intellibus-dashboard-primary);
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    .intellibus-inventory-create-upload-helper {
+        margin: 0;
+        color: #475467;
+        font-size: 14px;
+        line-height: 20px;
+        text-align: center;
+    }
+
+    .intellibus-inventory-create-upload-input {
+        display: none;
+    }
+
+    .intellibus-inventory-create-upload-button,
+    .intellibus-inventory-create-icon-button,
+    .intellibus-inventory-create-print-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .intellibus-inventory-create-upload-button,
+    .intellibus-inventory-create-icon-button {
+        background: #f4f4f5;
+        color: #18181b;
+    }
+
+    .intellibus-inventory-create-upload-button {
+        min-height: 40px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 20px;
+    }
+
+    .intellibus-inventory-create-upload-name {
+        margin: 0;
+        color: #475467;
+        font-size: 12px;
+        line-height: 18px;
+        text-align: center;
+        word-break: break-word;
+    }
+
+    .intellibus-inventory-create-qr-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .intellibus-inventory-create-icon-button {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+    }
+
+    .intellibus-inventory-create-print-button {
+        min-height: 32px;
+        padding: 8px 12px;
+        background: #18181b;
+        color: #fafafa;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
     }
 
     .intellibus-inventory-detail-form-separator {
@@ -1441,6 +1772,10 @@ body.intellibus-inventory-detail-open {
         font-size: 12px;
         line-height: 16px;
         box-shadow: var(--intellibus-dashboard-shadow);
+    }
+
+    .intellibus-inventory-detail-sheet.is-create-mode .intellibus-inventory-detail-header {
+        min-height: 58px;
     }
 }
 

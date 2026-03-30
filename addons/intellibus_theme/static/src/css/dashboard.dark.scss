@@ -101,4 +101,36 @@
     .intellibus-inventory-detail-form-selected-close {
         color: #94a3b8;
     }
+
+    .intellibus-inventory-detail-form-input::placeholder,
+    .intellibus-inventory-detail-form-textarea::placeholder,
+    .intellibus-inventory-create-helper,
+    .intellibus-inventory-create-upload-helper,
+    .intellibus-inventory-create-upload-name {
+        color: #94a3b8;
+    }
+
+    .intellibus-inventory-create-side-heading,
+    .intellibus-inventory-create-asset-copy {
+        color: #cbd5e1;
+    }
+
+    .intellibus-inventory-create-toggle {
+        background: #334155;
+    }
+
+    .intellibus-inventory-create-upload-button,
+    .intellibus-inventory-create-icon-button {
+        background: #111827;
+        color: #f8fafc;
+    }
+
+    .intellibus-inventory-create-print-button {
+        background: #f8fafc;
+        color: #020617;
+    }
+
+    .intellibus-inventory-create-preview-frame {
+        background: #ffffff;
+    }
 }

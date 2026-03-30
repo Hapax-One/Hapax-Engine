@@ -1,6 +1,6 @@
 :root {
-    --intellibus-brand-soft: color-mix(in srgb, var(--intellibus-brand-color) 22%, #020617);
-    --intellibus-brand-border: color-mix(in srgb, var(--intellibus-brand-color) 40%, #020617);
+    --intellibus-brand-soft: var(--intellibus-brand-soft-dark);
+    --intellibus-brand-border: var(--intellibus-brand-border-dark);
 }
 
 .o_web_client > .o_action_manager {
@@ -10,12 +10,15 @@
 body .o_navbar {
     background: #020617 !important;
     border-right-color: #1e293b;
+    box-shadow: none;
 }
 
 .intellibus-sidebar {
     .sidebar-top,
+    .sidebar-nav-links,
     .sidebar-others-menu,
     .sidebar-bottom {
+        background: #020617;
         border-color: #1e293b;
     }
 

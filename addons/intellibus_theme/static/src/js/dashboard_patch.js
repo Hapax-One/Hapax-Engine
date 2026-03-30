@@ -253,6 +253,7 @@ function createEmptyInventoryState() {
             item: null,
             mode: "overview",
             moveForm: createEmptyMoveFormState(),
+            createForm: createEmptyCreateFormState(),
         },
     };
 }
@@ -553,6 +554,7 @@ function buildInventoryRows(products, quants, moves, orderpoints) {
                 qty: Number(product.qty_available || 0),
                 reservedQty: Number(quant.reserved || 0),
                 incomingQty: Number(product.incoming_qty || 0),
+                locationId: quant.primaryLocationId || false,
                 location: quant.primaryLocation || "-",
                 typeLabel: getTypeLabel(product.detailed_type),
                 trackingLabel: getTrackingLabel(product.tracking),
@@ -608,13 +610,53 @@ function createEmptyMoveFormState() {
         error: "",
         currentUser: null,
         sourceLocationId: false,
+        sourceLocationIds: [],
         destinationLocationId: false,
         assigneeId: false,
         description: "",
         locationOptions: [],
         assigneeOptions: [],
         pickingTypes: [],
+        selectedRows: [],
     };
+}
+
+function createInventoryDraftCode() {
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const random = Math.floor(Math.random() * 1679616)
+        .toString(36)
+        .toUpperCase()
+        .padStart(4, "0");
+    return `INV-${timestamp}-${random}`;
+}
+
+function createEmptyCreateFormState() {
+    return {
+        loading: false,
+        submitting: false,
+        error: "",
+        name: "",
+        serialNumber: "",
+        categoryId: false,
+        quantity: "",
+        locationId: false,
+        tracking: "none",
+        trackAsAsset: false,
+        description: "",
+        categoryOptions: [],
+        locationOptions: [],
+        imageData: "",
+        imageName: "",
+        generatedCode: createInventoryDraftCode(),
+    };
+}
+
+function buildInventoryQrCodeUrl(value) {
+    const normalized = normalizeText(value);
+    if (!normalized) {
+        return "";
+    }
+    return `/report/barcode/?type=QR&value=${encodeURIComponent(normalized)}&width=240&height=240`;
 }
 
 function getLocationRootKey(locationPath) {
@@ -654,6 +696,20 @@ function formatMoveFormUser(userRecord) {
         name: normalizeText(userRecord.partner_id?.[1]) || normalizeText(userRecord.login) || _t("Unknown user"),
         email: normalizeText(userRecord.login) || normalizeText(userRecord.partner_email) || "-",
         avatarUrl: `/web/image?model=res.users&field=avatar_128&id=${userRecord.id}`,
+    };
+}
+
+function formatInventoryMoveSelectionRow(row, productUomId = false, productUomLabel = false) {
+    return {
+        id: row.id,
+        title: row.itemName || row.title || _t("Unnamed item"),
+        subtitle: row.itemMeta || row.subtitle || row.reference || "-",
+        imageUrl: row.imageUrl || `/web/image?model=product.product&field=image_128&id=${row.id}`,
+        sourceLocationId: row.locationId || row.currentLocationId || false,
+        sourceLocationLabel: row.location || row.currentLocationPath || "-",
+        onHandQty: Number(row.qty ?? row.onHandQty ?? 0),
+        uomId: productUomId || row.uomId || false,
+        uomLabel: productUomLabel || row.uomLabel || _t("Units"),
     };
 }
 
@@ -907,6 +963,9 @@ patch(SpreadsheetDashboardAction.prototype, {
     },
 
     getInventoryDetailTitle() {
+        if (this.isInventoryCreateMode()) {
+            return _t("Add item");
+        }
         if (this.isInventoryMoveMode()) {
             return _t("Move item");
         }
@@ -925,6 +984,15 @@ patch(SpreadsheetDashboardAction.prototype, {
         return _t("Move log");
     },
 
+    getInventoryMoveSelectedItemsLabel() {
+        return _t("Selected items");
+    },
+
+    getInventoryMoveSelectedCountLabel() {
+        const count = this.getInventoryMoveSelectedRows().length;
+        return count === 1 ? _t("1 item selected") : `${count} ${_t("items selected")}`;
+    },
+
     getInventoryPhotosLabel() {
         return _t("Photo");
     },
@@ -935,6 +1003,137 @@ patch(SpreadsheetDashboardAction.prototype, {
 
     getInventoryStockLabel() {
         return _t("Inventory");
+    },
+
+    getInventoryCreateNameLabel() {
+        return _t("Item name");
+    },
+
+    getInventoryCreateNamePlaceholder() {
+        return _t("Eg. 2023 MacBook pro 16”");
+    },
+
+    getInventoryCreateSerialLabel() {
+        return _t("Serial #");
+    },
+
+    getInventoryCreateSerialPlaceholder() {
+        return _t("Serial # or asset tag");
+    },
+
+    getInventoryCreateCategoryLabel() {
+        return _t("Category");
+    },
+
+    getInventoryCreateCategoryPlaceholder() {
+        return _t("Select a Category");
+    },
+
+    getInventoryCreateQuantityLabel() {
+        return _t("Quantity");
+    },
+
+    getInventoryCreateQuantityPlaceholder() {
+        return _t("How many?");
+    },
+
+    getInventoryCreateLocationLabel() {
+        return _t("Assign to location");
+    },
+
+    getInventoryCreateLocationPlaceholder() {
+        return _t("Select a location");
+    },
+
+    getInventoryCreateTrackingLabel() {
+        return _t("Tracking Category");
+    },
+
+    getInventoryCreateTrackingPlaceholder() {
+        return _t("Select a tracking Category");
+    },
+
+    getInventoryCreateTrackingHelperLabel() {
+        return _t("Individual tracking requires serial number.");
+    },
+
+    getInventoryCreateAssetLabel() {
+        return _t("Track as asset?");
+    },
+
+    getInventoryCreateDescriptionLabel() {
+        return _t("Description");
+    },
+
+    getInventoryCreateDescriptionPlaceholder() {
+        return _t("Enter a description...");
+    },
+
+    getInventoryCreateScanPanelLabel() {
+        return _t("Scan to add details (Recommended)");
+    },
+
+    getInventoryCreateScanActionLabel() {
+        return _t("Scan with your phone to add the details");
+    },
+
+    getInventoryCreateScanSupportLabel() {
+        return _t("or drag and drop PNG or JPG");
+    },
+
+    getInventoryCreateScanSupportMetaLabel() {
+        return _t("(max. 800x400px)");
+    },
+
+    getInventoryCreateUploadLabel() {
+        return _t("Attach photo from computer");
+    },
+
+    getInventoryCreateAssignedQrLabel() {
+        return _t("Assigned QR code");
+    },
+
+    getInventoryCreateRotateQrLabel() {
+        return _t("Regenerate assigned code");
+    },
+
+    getInventoryCreateCopyQrLabel() {
+        return _t("Copy assigned code");
+    },
+
+    getInventoryCreatePrintQrLabel() {
+        return _t("Print");
+    },
+
+    getInventoryCreateCloseLabel() {
+        return _t("Close");
+    },
+
+    getInventoryCreateSubmitLabel() {
+        if (this.getInventoryCreateForm().submitting) {
+            return _t("Adding item...");
+        }
+        return _t("Add item");
+    },
+
+    getInventoryCreateScanUnavailableLabel() {
+        return _t("Phone-assisted item creation is not configured in this database yet.");
+    },
+
+    getInventoryCreateImageAddedLabel() {
+        return _t("Photo attached.");
+    },
+
+    getInventoryCreateImageInvalidLabel() {
+        return _t("Choose a PNG or JPG image.");
+    },
+
+    getInventoryCreateCopySuccessLabel() {
+        return _t("Assigned code copied.");
+    },
+
+    getInventoryCreateSuccessLabel() {
+        return _t("Inventory item created.");
     },
 
     getInventoryMoveYouLabel() {
@@ -1064,16 +1263,19 @@ patch(SpreadsheetDashboardAction.prototype, {
     },
 
     isInventoryMoveSubmitDisabled() {
-        const detail = this.getInventoryDetail();
         const moveForm = this.getInventoryMoveForm();
+        const movableRows = this.getInventoryMoveSelectedRows().filter(
+            (row) =>
+                row.sourceLocationId &&
+                row.sourceLocationId !== moveForm.destinationLocationId &&
+                row.onHandQty >= 1
+        );
         return (
-            !detail ||
             moveForm.submitting ||
             moveForm.loading ||
-            !moveForm.sourceLocationId ||
+            !moveForm.selectedRows.length ||
             !moveForm.destinationLocationId ||
-            moveForm.destinationLocationId === moveForm.sourceLocationId ||
-            detail.onHandQty < 1
+            !movableRows.length
         );
     },
 
@@ -1137,6 +1339,7 @@ patch(SpreadsheetDashboardAction.prototype, {
                 value: formatMetric(summary.lowStockCount),
                 badge: `${summary.lowStockRules} ${_t("rules")}`,
                 tone: summary.lowStockCount ? "warning" : "success",
+                actionKey: "low-stock-rules",
             },
             {
                 key: "total-items",
@@ -1156,11 +1359,26 @@ patch(SpreadsheetDashboardAction.prototype, {
     },
 
     getInventoryMetricCardClass(card) {
-        return `intellibus-inventory-metric-card is-${card.tone}`;
+        return `intellibus-inventory-metric-card is-${card.tone}${
+            card.actionKey ? " is-interactive" : ""
+        }`;
     },
 
     getInventoryMetricBadgeClass(tone) {
         return `intellibus-inventory-pill is-${tone}`;
+    },
+
+    getInventoryMetricCardActionLabel(card) {
+        if (card.actionKey === "low-stock-rules") {
+            return _t("Open low stock rules");
+        }
+        return card.label;
+    },
+
+    async onInventorySummaryCardClick(card) {
+        if (card.actionKey === "low-stock-rules") {
+            await this.openInventoryLowStockRules();
+        }
     },
 
     onInventorySearchInput(ev) {
@@ -1348,12 +1566,24 @@ patch(SpreadsheetDashboardAction.prototype, {
         return this.inventoryDashboardState.detail.item;
     },
 
+    isInventoryCreateMode() {
+        return this.inventoryDashboardState.detail.mode === "create";
+    },
+
     isInventoryMoveMode() {
         return this.inventoryDashboardState.detail.mode === "move";
     },
 
     getInventoryMoveForm() {
         return this.inventoryDashboardState.detail.moveForm;
+    },
+
+    getInventoryCreateForm() {
+        return this.inventoryDashboardState.detail.createForm;
+    },
+
+    getInventoryMoveSelectedRows() {
+        return this.getInventoryMoveForm().selectedRows || [];
     },
 
     closeInventoryDetail() {
@@ -1363,6 +1593,7 @@ patch(SpreadsheetDashboardAction.prototype, {
         this.inventoryDashboardState.detail.item = null;
         this.inventoryDashboardState.detail.mode = "overview";
         this.inventoryDashboardState.detail.moveForm = createEmptyMoveFormState();
+        this.inventoryDashboardState.detail.createForm = createEmptyCreateFormState();
     },
 
     getInventoryDetailError() {
@@ -1449,16 +1680,46 @@ patch(SpreadsheetDashboardAction.prototype, {
     },
 
     async openInventoryCreate() {
-        await this.actionService.doAction({
-            type: "ir.actions.act_window",
-            name: _t("Add inventory item"),
-            res_model: "product.product",
-            views: [[false, "form"]],
-            target: "current",
-            context: {
-                default_detailed_type: "product",
-            },
-        });
+        this.inventoryDashboardState.detail.open = true;
+        this.inventoryDashboardState.detail.loading = true;
+        this.inventoryDashboardState.detail.error = "";
+        this.inventoryDashboardState.detail.item = null;
+        this.inventoryDashboardState.detail.mode = "create";
+        this.inventoryDashboardState.detail.moveForm = createEmptyMoveFormState();
+        this.inventoryDashboardState.detail.createForm = createEmptyCreateFormState();
+        const createForm = this.getInventoryCreateForm();
+
+        try {
+            const [categoryRecords, locationRecords] = await Promise.all([
+                this.orm.searchRead(
+                    "product.category",
+                    [["active", "=", true]],
+                    ["id", "name", "complete_name"],
+                    { limit: 250, order: "complete_name" }
+                ),
+                this.orm.searchRead(
+                    "stock.location",
+                    [["usage", "=", "internal"]],
+                    ["id", "name", "complete_name"],
+                    { limit: 250, order: "complete_name" }
+                ),
+            ]);
+
+            createForm.categoryOptions = categoryRecords.map((category) => ({
+                id: category.id,
+                label: normalizeText(category.complete_name) || normalizeText(category.name) || "-",
+            }));
+            createForm.locationOptions = locationRecords.map((location) => ({
+                id: location.id,
+                label: normalizeText(location.complete_name) || normalizeText(location.name) || "-",
+            }));
+            createForm.locationId = createForm.locationOptions[0]?.id || false;
+        } catch (error) {
+            this.inventoryDashboardState.detail.error =
+                error?.message || _t("Unable to load the add item form.");
+        } finally {
+            this.inventoryDashboardState.detail.loading = false;
+        }
     },
 
     async openInventoryRestock() {
@@ -1470,6 +1731,24 @@ patch(SpreadsheetDashboardAction.prototype, {
                 [false, "list"],
                 [false, "form"],
             ],
+            target: "current",
+        });
+    },
+
+    async openInventoryLowStockRules() {
+        await this.actionService.doAction({
+            type: "ir.actions.act_window",
+            name: _t("Low stock rules"),
+            res_model: "stock.warehouse.orderpoint",
+            views: [
+                [false, "list"],
+                [false, "form"],
+            ],
+            domain: [["qty_to_order", ">", 0]],
+            context: {
+                search_default_filter_to_reorder: 1,
+                search_default_filter_not_snoozed: 1,
+            },
             target: "current",
         });
     },
@@ -1491,6 +1770,20 @@ patch(SpreadsheetDashboardAction.prototype, {
     async openInventoryMoves() {
         const selectedIds = this.inventoryDashboardState.selectedProductIds;
         const detail = this.getInventoryDetail();
+        if (selectedIds.length > 1) {
+            const selectedRows = this.inventoryDashboardState.rows.filter((row) =>
+                selectedIds.includes(row.id)
+            );
+            if (selectedRows.length) {
+                this.inventoryDashboardState.detail.open = true;
+                this.inventoryDashboardState.detail.loading = false;
+                this.inventoryDashboardState.detail.error = "";
+                this.inventoryDashboardState.detail.item = null;
+                this.inventoryDashboardState.detail.createForm = createEmptyCreateFormState();
+                await this.loadInventoryMoveFormContext(selectedRows);
+                return;
+            }
+        }
         if (detail) {
             await this.openInventoryDetailInternalMoves();
             return;
@@ -1514,6 +1807,7 @@ patch(SpreadsheetDashboardAction.prototype, {
         this.inventoryDashboardState.detail.error = "";
         this.inventoryDashboardState.detail.mode = "overview";
         this.inventoryDashboardState.detail.moveForm = createEmptyMoveFormState();
+        this.inventoryDashboardState.detail.createForm = createEmptyCreateFormState();
         this.inventoryDashboardState.detail.item = null;
         try {
             this.inventoryDashboardState.detail.item = await this.loadInventoryDetail(row);
@@ -1622,21 +1916,22 @@ patch(SpreadsheetDashboardAction.prototype, {
         });
     },
 
-    async openInventoryDetailInternalMoves() {
-        const detail = this.getInventoryDetail();
-        if (!detail) {
-            return;
-        }
+    async loadInventoryMoveFormContext(selectedRows) {
         const moveForm = this.getInventoryMoveForm();
         this.inventoryDashboardState.detail.mode = "move";
+        this.inventoryDashboardState.detail.createForm = createEmptyCreateFormState();
+        this.inventoryDashboardState.detail.loading = true;
         moveForm.loading = true;
         moveForm.error = "";
         moveForm.destinationLocationId = false;
         moveForm.assigneeId = false;
         moveForm.description = "";
+        moveForm.selectedRows = [];
+        moveForm.sourceLocationId = false;
+        moveForm.sourceLocationIds = [];
 
         try {
-            const [currentUserRecords, locationRecords, assigneeRecords, pickingTypes] = await Promise.all([
+            const [currentUserRecords, locationRecords, assigneeRecords, pickingTypes, productRecords] = await Promise.all([
                 this.orm.searchRead(
                     "res.users",
                     [["id", "=", this.user.userId]],
@@ -1661,6 +1956,12 @@ patch(SpreadsheetDashboardAction.prototype, {
                     ["id", "name", "default_location_src_id", "warehouse_id"],
                     { limit: 50 }
                 ),
+                this.orm.searchRead(
+                    "product.product",
+                    [["id", "in", selectedRows.map((row) => row.id)]],
+                    ["id", "uom_id"],
+                    { limit: Math.max(selectedRows.length, 1) }
+                ),
             ]);
 
             const currentUser = currentUserRecords[0]
@@ -1672,22 +1973,238 @@ patch(SpreadsheetDashboardAction.prototype, {
                 path: normalizeText(location.complete_name) || normalizeText(location.name) || "-",
             }));
             const assigneeOptions = assigneeRecords.map((userRecord) => formatMoveFormUser(userRecord));
+            const productMap = new Map(
+                productRecords.map((productRecord) => [
+                    productRecord.id,
+                    {
+                        uomId: productRecord.uom_id?.[0] || false,
+                        uomLabel: normalizeText(productRecord.uom_id?.[1]) || _t("Units"),
+                    },
+                ])
+            );
+            const formattedRows = selectedRows.map((row) => {
+                const productData = productMap.get(row.id) || {};
+                return formatInventoryMoveSelectionRow(row, productData.uomId, productData.uomLabel);
+            });
+            const uniqueSourceIds = [...new Set(formattedRows.map((row) => row.sourceLocationId).filter(Boolean))];
 
             moveForm.currentUser = currentUser;
-            moveForm.sourceLocationId = detail.currentLocationId || false;
+            moveForm.selectedRows = formattedRows;
+            moveForm.sourceLocationId = uniqueSourceIds.length === 1 ? uniqueSourceIds[0] : false;
+            moveForm.sourceLocationIds = uniqueSourceIds;
             moveForm.locationOptions = locationOptions;
             moveForm.assigneeOptions = assigneeOptions;
             moveForm.pickingTypes = pickingTypes;
         } catch (error) {
             moveForm.error = error?.message || _t("Unable to load move form.");
         } finally {
+            this.inventoryDashboardState.detail.loading = false;
             moveForm.loading = false;
         }
+    },
+
+    async openInventoryDetailInternalMoves() {
+        const detail = this.getInventoryDetail();
+        if (!detail) {
+            return;
+        }
+        await this.loadInventoryMoveFormContext([
+            formatInventoryMoveSelectionRow(
+                {
+                    id: detail.id,
+                    title: detail.title,
+                    subtitle: detail.subtitle,
+                    currentLocationId: detail.currentLocationId,
+                    currentLocationPath: detail.currentLocationPath,
+                    onHandQty: detail.onHandQty,
+                },
+                detail.uomId,
+                detail.uomLabel
+            ),
+        ]);
     },
 
     closeInventoryMoveMode() {
         this.inventoryDashboardState.detail.mode = "overview";
         this.inventoryDashboardState.detail.moveForm = createEmptyMoveFormState();
+    },
+
+    onInventoryCreateNameInput(ev) {
+        this.getInventoryCreateForm().name = ev.target.value || "";
+    },
+
+    onInventoryCreateSerialInput(ev) {
+        this.getInventoryCreateForm().serialNumber = ev.target.value || "";
+    },
+
+    onInventoryCreateCategoryChange(ev) {
+        const value = Number(ev.target.value || 0);
+        this.getInventoryCreateForm().categoryId = value || false;
+    },
+
+    onInventoryCreateQuantityInput(ev) {
+        this.getInventoryCreateForm().quantity = ev.target.value || "";
+    },
+
+    onInventoryCreateLocationChange(ev) {
+        const value = Number(ev.target.value || 0);
+        this.getInventoryCreateForm().locationId = value || false;
+    },
+
+    onInventoryCreateTrackingChange(ev) {
+        const value = normalizeText(ev.target.value) || "none";
+        this.getInventoryCreateForm().tracking = value;
+    },
+
+    onInventoryCreateDescriptionInput(ev) {
+        this.getInventoryCreateForm().description = ev.target.value || "";
+    },
+
+    toggleInventoryCreateTrackAsAsset() {
+        const createForm = this.getInventoryCreateForm();
+        createForm.trackAsAsset = !createForm.trackAsAsset;
+    },
+
+    openInventoryCreateScanner() {
+        this.notification.add(this.getInventoryCreateScanUnavailableLabel(), {
+            type: "info",
+        });
+    },
+
+    openInventoryCreateUpload() {
+        const input = document.querySelector(".intellibus-inventory-create-upload-input");
+        input?.click();
+    },
+
+    async onInventoryCreateImageChange(ev) {
+        const createForm = this.getInventoryCreateForm();
+        const [file] = ev.target.files || [];
+        if (!file) {
+            return;
+        }
+
+        if (!["image/jpeg", "image/png"].includes(file.type)) {
+            createForm.error = this.getInventoryCreateImageInvalidLabel();
+            ev.target.value = "";
+            return;
+        }
+
+        try {
+            const imageData = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error || new Error("File read failed"));
+                reader.readAsDataURL(file);
+            });
+            createForm.imageData = imageData || "";
+            createForm.imageName = file.name || "";
+            createForm.error = "";
+            this.notification.add(this.getInventoryCreateImageAddedLabel(), {
+                type: "success",
+            });
+        } catch (error) {
+            createForm.error = error?.message || this.getInventoryCreateImageInvalidLabel();
+        } finally {
+            ev.target.value = "";
+        }
+    },
+
+    getInventoryCreateTrackingOptions() {
+        return [
+            { value: "none", label: _t("None") },
+            { value: "lot", label: _t("Lot") },
+            { value: "serial", label: _t("Serial") },
+        ];
+    },
+
+    getInventoryCreateAssignedCodeValue() {
+        const createForm = this.getInventoryCreateForm();
+        return normalizeText(createForm.serialNumber) || createForm.generatedCode;
+    },
+
+    getInventoryCreateAssignedQrUrl() {
+        return buildInventoryQrCodeUrl(this.getInventoryCreateAssignedCodeValue());
+    },
+
+    getInventoryCreateScanQrUrl() {
+        return buildInventoryQrCodeUrl(this.getInventoryCreateAssignedCodeValue());
+    },
+
+    getInventoryCreateImagePreviewUrl() {
+        return this.getInventoryCreateForm().imageData || "";
+    },
+
+    isInventoryCreateSubmitDisabled() {
+        const createForm = this.getInventoryCreateForm();
+        const parsedQuantity = Number.parseFloat(createForm.quantity || "0");
+        const hasQuantity =
+            normalizeText(createForm.quantity) !== "" && Number.isFinite(parsedQuantity) && parsedQuantity > 0;
+        return (
+            createForm.loading ||
+            createForm.submitting ||
+            !normalizeText(createForm.name) ||
+            !createForm.categoryId ||
+            normalizeText(createForm.quantity) === "" ||
+            !Number.isFinite(parsedQuantity) ||
+            parsedQuantity < 0 ||
+            (hasQuantity && !createForm.locationId)
+        );
+    },
+
+    regenerateInventoryCreateCode() {
+        const createForm = this.getInventoryCreateForm();
+        createForm.generatedCode = createInventoryDraftCode();
+    },
+
+    async copyInventoryCreateCode() {
+        const code = this.getInventoryCreateAssignedCodeValue();
+        if (!code) {
+            return;
+        }
+        try {
+            if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(code);
+                this.notification.add(this.getInventoryCreateCopySuccessLabel(), {
+                    type: "success",
+                });
+                return;
+            }
+        } catch {
+            // Fall through to info toast with the value.
+        }
+        this.notification.add(`${_t("Assigned code")}: ${code}`, {
+            type: "info",
+        });
+    },
+
+    printInventoryCreateCode() {
+        const qrUrl = this.getInventoryCreateAssignedQrUrl();
+        if (!qrUrl || typeof window === "undefined") {
+            return;
+        }
+        const printWindow = window.open("", "_blank", "noopener,noreferrer,width=480,height=560");
+        if (!printWindow) {
+            return;
+        }
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>${this.getInventoryCreateAssignedQrLabel()}</title>
+                    <style>
+                        body { font-family: Inter, Arial, sans-serif; margin: 0; padding: 24px; text-align: center; }
+                        img { width: 240px; height: 240px; object-fit: contain; }
+                        p { font-size: 16px; line-height: 24px; color: #0f172a; }
+                    </style>
+                </head>
+                <body>
+                    <img src="${qrUrl}" alt="${this.getInventoryCreateAssignedQrLabel()}" />
+                    <p>${this.getInventoryCreateAssignedCodeValue()}</p>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
     },
 
     openInventoryMoveScanner() {
@@ -1712,18 +2229,25 @@ patch(SpreadsheetDashboardAction.prototype, {
 
     getInventoryMoveSourceLabel() {
         const moveForm = this.getInventoryMoveForm();
-        const detail = this.getInventoryDetail();
-        const sourceLocation = moveForm.locationOptions.find(
-            (option) => option.id === moveForm.sourceLocationId
-        );
-        return sourceLocation?.path || detail?.currentLocationPath || "-";
+        const selectedRows = this.getInventoryMoveSelectedRows();
+        const uniqueLocations = [...new Set(selectedRows.map((row) => row.sourceLocationLabel).filter(Boolean))];
+        if (!uniqueLocations.length) {
+            return "-";
+        }
+        if (uniqueLocations.length === 1) {
+            return uniqueLocations[0];
+        }
+        return `${uniqueLocations.length} ${_t("locations selected")}`;
     },
 
     getInventoryMoveDestinationOptions() {
         const moveForm = this.getInventoryMoveForm();
-        return moveForm.locationOptions.filter(
-            (option) => option.id !== moveForm.sourceLocationId
-        );
+        if (moveForm.sourceLocationIds.length === 1) {
+            return moveForm.locationOptions.filter(
+                (option) => option.id !== moveForm.sourceLocationIds[0]
+            );
+        }
+        return moveForm.locationOptions;
     },
 
     getInventorySelectedAssignee() {
@@ -1741,10 +2265,14 @@ patch(SpreadsheetDashboardAction.prototype, {
         return assignee.email && assignee.email !== "-" ? assignee.email : assignee.name;
     },
 
+    getInventoryMoveSelectionList() {
+        return this.getInventoryMoveSelectedRows();
+    },
+
     async submitInventoryDetailMove() {
-        const detail = this.getInventoryDetail();
         const moveForm = this.getInventoryMoveForm();
-        if (!detail) {
+        const selectedRows = this.getInventoryMoveSelectedRows();
+        if (!selectedRows.length) {
             return;
         }
 
@@ -1752,16 +2280,14 @@ patch(SpreadsheetDashboardAction.prototype, {
             moveForm.error = _t("Choose a destination location.");
             return;
         }
-        if (!moveForm.sourceLocationId) {
-            moveForm.error = _t("This item does not have a current internal location yet.");
-            return;
-        }
-        if (moveForm.destinationLocationId === moveForm.sourceLocationId) {
-            moveForm.error = _t("Choose a different destination location.");
-            return;
-        }
-        if (detail.onHandQty < 1) {
-            moveForm.error = _t("This item has no on-hand stock available to move.");
+        const rowsToMove = selectedRows.filter(
+            (row) =>
+                row.sourceLocationId &&
+                row.sourceLocationId !== moveForm.destinationLocationId &&
+                row.onHandQty >= 1
+        );
+        if (!rowsToMove.length) {
+            moveForm.error = _t("Choose items with stock that are not already in the destination location.");
             return;
         }
 
@@ -1769,55 +2295,142 @@ patch(SpreadsheetDashboardAction.prototype, {
         moveForm.error = "";
 
         try {
-            const pickingType = chooseInternalPickingType(
-                moveForm.pickingTypes,
-                detail.currentLocationPath
-            );
-            if (!pickingType) {
-                throw new Error(_t("No internal transfer operation type is configured."));
-            }
+            const moveGroups = rowsToMove.reduce((groups, row) => {
+                if (!groups.has(row.sourceLocationId)) {
+                    groups.set(row.sourceLocationId, []);
+                }
+                groups.get(row.sourceLocationId).push(row);
+                return groups;
+            }, new Map());
 
-            const payload = {
-                picking_type_id: pickingType.id,
-                location_id: moveForm.sourceLocationId,
-                location_dest_id: moveForm.destinationLocationId,
-                origin: _t("Inventory dashboard transfer"),
-                note: normalizeText(moveForm.description) || false,
-                user_id: moveForm.assigneeId || false,
-                move_ids_without_package: [
-                    [
+            for (const [, groupRows] of moveGroups) {
+                const sourceLocationLabel = groupRows[0]?.sourceLocationLabel || "";
+                const pickingType = chooseInternalPickingType(
+                    moveForm.pickingTypes,
+                    sourceLocationLabel
+                );
+                if (!pickingType) {
+                    throw new Error(_t("No internal transfer operation type is configured."));
+                }
+
+                const payload = {
+                    picking_type_id: pickingType.id,
+                    location_id: groupRows[0].sourceLocationId,
+                    location_dest_id: moveForm.destinationLocationId,
+                    origin: _t("Inventory dashboard transfer"),
+                    note: normalizeText(moveForm.description) || false,
+                    user_id: moveForm.assigneeId || false,
+                    move_ids_without_package: groupRows.map((row) => [
                         0,
                         0,
                         {
-                            name: detail.title,
-                            product_id: detail.id,
+                            name: row.title,
+                            product_id: row.id,
                             product_uom_qty: 1,
-                            product_uom: detail.uomId,
-                            location_id: moveForm.sourceLocationId,
+                            product_uom: row.uomId,
+                            location_id: row.sourceLocationId,
                             location_dest_id: moveForm.destinationLocationId,
                             description_picking: normalizeText(moveForm.description) || false,
                         },
-                    ],
-                ],
-            };
+                    ]),
+                };
 
-            const pickingId = await this.orm.call("stock.picking", "create", [payload]);
-            await this.orm.call("stock.picking", "action_confirm", [[pickingId]]);
-            await this.orm.call("stock.picking", "action_assign", [[pickingId]]);
+                const pickingId = await this.orm.call("stock.picking", "create", [payload]);
+                await this.orm.call("stock.picking", "action_confirm", [[pickingId]]);
+                await this.orm.call("stock.picking", "action_assign", [[pickingId]]);
+            }
 
             await this.loadInventoryDashboardData();
-            const refreshedRow =
-                this.inventoryDashboardState.rows.find((row) => row.id === detail.id) ||
-                this.inventoryDashboardState.rows[0];
-            if (refreshedRow) {
-                this.inventoryDashboardState.detail.item = await this.loadInventoryDetail(refreshedRow);
+            const detail = this.getInventoryDetail();
+            if (detail) {
+                const refreshedRow =
+                    this.inventoryDashboardState.rows.find((row) => row.id === detail.id) ||
+                    this.inventoryDashboardState.rows[0];
+                if (refreshedRow) {
+                    this.inventoryDashboardState.detail.item = await this.loadInventoryDetail(refreshedRow);
+                }
+                this.closeInventoryMoveMode();
+            } else {
+                this.closeInventoryDetail();
             }
-            this.closeInventoryMoveMode();
-            this.notification.add(_t("Internal transfer created."), { type: "success" });
+            this.notification.add(
+                rowsToMove.length === 1
+                    ? _t("Internal transfer created.")
+                    : `${rowsToMove.length} ${_t("item transfers created.")}`,
+                { type: "success" }
+            );
         } catch (error) {
             moveForm.error = error?.message || _t("Unable to move this item.");
         } finally {
             moveForm.submitting = false;
+        }
+    },
+
+    async submitInventoryCreate() {
+        const createForm = this.getInventoryCreateForm();
+        const parsedQuantity = Number.parseFloat(createForm.quantity || "0");
+        const quantity = Number.isFinite(parsedQuantity) ? parsedQuantity : NaN;
+
+        if (!normalizeText(createForm.name)) {
+            createForm.error = _t("Enter an item name.");
+            return;
+        }
+        if (!createForm.categoryId) {
+            createForm.error = _t("Choose a category.");
+            return;
+        }
+        if (!Number.isFinite(quantity) || quantity < 0) {
+            createForm.error = _t("Enter a valid quantity.");
+            return;
+        }
+        if (quantity > 0 && !createForm.locationId) {
+            createForm.error = _t("Choose a location for the opening quantity.");
+            return;
+        }
+        if (createForm.tracking === "serial" && quantity > 1) {
+            createForm.error = _t("Serial-tracked items can only be added one at a time.");
+            return;
+        }
+        if (createForm.tracking === "serial" && !normalizeText(createForm.serialNumber)) {
+            createForm.error = _t("Serial-tracked items require a serial number.");
+            return;
+        }
+
+        createForm.submitting = true;
+        createForm.error = "";
+
+        try {
+            const result = await this.orm.call("product.template", "create_inventory_dashboard_item", [
+                {
+                    name: normalizeText(createForm.name),
+                    serial_number: normalizeText(createForm.serialNumber) || false,
+                    category_id: createForm.categoryId,
+                    quantity,
+                    location_id: createForm.locationId || false,
+                    tracking: createForm.tracking || "none",
+                    track_as_asset: !!createForm.trackAsAsset,
+                    description: normalizeText(createForm.description) || false,
+                    assigned_code: this.getInventoryCreateAssignedCodeValue(),
+                    image_data: createForm.imageData || false,
+                },
+            ]);
+
+            await this.loadInventoryDashboardData();
+            const refreshedRow = this.inventoryDashboardState.rows.find(
+                (row) => row.id === result?.product_id
+            );
+            this.notification.add(this.getInventoryCreateSuccessLabel(), {
+                type: "success",
+            });
+            if (refreshedRow) {
+                await this.openInventoryRow(refreshedRow);
+            } else {
+                this.closeInventoryDetail();
+            }
+        } catch (error) {
+            createForm.error = error?.message || _t("Unable to add this item.");
+        } finally {
+            createForm.submitting = false;
         }
     },
 });
