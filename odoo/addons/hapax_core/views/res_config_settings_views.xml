@@ -1,0 +1,21 @@
+<odoo>
+    <record id="res_config_settings_view_form_hapax" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.hapax</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app name="hapax_core" string="Hapax Platform">
+                    <block title="Routing">
+                        <setting string="Base domain">
+                            <field name="hapax_base_domain"/>
+                        </setting>
+                        <setting string="API cookie domain">
+                            <field name="hapax_api_cookie_domain"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

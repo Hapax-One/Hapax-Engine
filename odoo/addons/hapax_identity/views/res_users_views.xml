@@ -1,0 +1,25 @@
+<odoo>
+    <record id="view_users_form_hapax_identity" model="ir.ui.view">
+        <field name="name">res.users.form.hapax.identity</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Hapax">
+                    <group>
+                        <field name="hapax_default_project_id"/>
+                    </group>
+                    <field name="hapax_membership_ids" nolabel="1">
+                        <tree editable="bottom">
+                            <field name="project_id"/>
+                            <field name="company_id"/>
+                            <field name="role"/>
+                            <field name="status"/>
+                            <field name="is_primary"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

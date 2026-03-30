@@ -1,0 +1,104 @@
+<odoo>
+    <record id="view_hapax_vehicle_tree" model="ir.ui.view">
+        <field name="name">hapax.vehicle.tree</field>
+        <field name="model">hapax.vehicle</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="category"/>
+                <field name="status"/>
+                <field name="published"/>
+                <field name="daily_rate"/>
+                <field name="location_name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hapax_vehicle_form" model="ir.ui.view">
+        <field name="name">hapax.vehicle.form</field>
+        <field name="model">hapax.vehicle</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="slug"/>
+                            <field name="company_id"/>
+                            <field name="project_id"/>
+                            <field name="status"/>
+                            <field name="published"/>
+                        </group>
+                        <group>
+                            <field name="make"/>
+                            <field name="model"/>
+                            <field name="year"/>
+                            <field name="category"/>
+                            <field name="location_name"/>
+                        </group>
+                    </group>
+                    <group string="Pricing">
+                        <group>
+                            <field name="daily_rate"/>
+                            <field name="deposit_amount"/>
+                            <field name="minimum_days"/>
+                        </group>
+                        <group>
+                            <field name="transmission"/>
+                            <field name="fuel_type"/>
+                            <field name="seats"/>
+                            <field name="luggage_count"/>
+                        </group>
+                    </group>
+                    <group string="Media">
+                        <group>
+                            <field name="image_url"/>
+                            <field name="hero_image_url"/>
+                        </group>
+                    </group>
+                    <group string="Copy">
+                        <field name="summary"/>
+                        <field name="description" nolabel="1"/>
+                    </group>
+                    <group string="Metadata">
+                        <group>
+                            <field name="plate_number"/>
+                            <field name="vin"/>
+                            <field name="features_json"/>
+                            <field name="gallery_json"/>
+                        </group>
+                        <group>
+                            <field name="review_count"/>
+                            <field name="rating"/>
+                            <field name="metadata_json"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hapax_vehicles" model="ir.actions.act_window">
+        <field name="name">Vehicles</field>
+        <field name="res_model">hapax.vehicle</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="menu_hapax_fleet"
+        name="Fleet"
+        parent="hapax_core.menu_hapax_root"
+        groups="hapax_core.group_hapax_platform_admin,hapax_core.group_hapax_tenant_admin"
+        sequence="30"
+    />
+
+    <menuitem
+        id="menu_hapax_vehicles"
+        name="Vehicles"
+        parent="hapax_rental.menu_hapax_fleet"
+        action="hapax_rental.action_hapax_vehicles"
+        groups="hapax_core.group_hapax_platform_admin,hapax_core.group_hapax_tenant_admin"
+        sequence="10"
+    />
+</odoo>

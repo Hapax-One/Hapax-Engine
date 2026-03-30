@@ -1,0 +1,88 @@
+<odoo>
+    <record id="view_hapax_booking_tree" model="ir.ui.view">
+        <field name="name">hapax.booking.tree</field>
+        <field name="model">hapax.booking</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="vehicle_id"/>
+                <field name="customer_partner_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="state"/>
+                <field name="quoted_total"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hapax_booking_form" model="ir.ui.view">
+        <field name="name">hapax.booking.form</field>
+        <field name="model">hapax.booking</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm" class="oe_highlight" states="draft,pending"/>
+                    <button name="action_cancel" type="object" string="Cancel" states="draft,pending,confirmed"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,confirmed,in_progress,completed,cancelled"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="company_id"/>
+                            <field name="project_id"/>
+                            <field name="vehicle_id"/>
+                            <field name="rate_plan_id"/>
+                        </group>
+                        <group>
+                            <field name="customer_partner_id"/>
+                            <field name="customer_user_id"/>
+                            <field name="membership_id"/>
+                            <field name="pickup_location"/>
+                            <field name="return_location"/>
+                        </group>
+                    </group>
+                    <group string="Dates">
+                        <group>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="quoted_days"/>
+                        </group>
+                        <group>
+                            <field name="quoted_daily_rate"/>
+                            <field name="quoted_subtotal"/>
+                            <field name="cleaning_fee"/>
+                            <field name="deposit_amount"/>
+                            <field name="quoted_total"/>
+                        </group>
+                    </group>
+                    <group string="Source">
+                        <group>
+                            <field name="source_channel"/>
+                            <field name="source_host"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hapax_bookings" model="ir.actions.act_window">
+        <field name="name">Bookings</field>
+        <field name="res_model">hapax.booking</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="menu_hapax_bookings"
+        name="Bookings"
+        parent="hapax_rental.menu_hapax_fleet"
+        action="hapax_rental.action_hapax_bookings"
+        groups="hapax_core.group_hapax_platform_admin,hapax_core.group_hapax_tenant_admin"
+        sequence="20"
+    />
+</odoo>

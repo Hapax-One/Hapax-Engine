@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hapax_vehicle_platform_admin,hapax.vehicle platform admin,model_hapax_vehicle,hapax_core.group_hapax_platform_admin,1,1,1,1
+access_hapax_vehicle_tenant_admin,hapax.vehicle tenant admin,model_hapax_vehicle,hapax_core.group_hapax_tenant_admin,1,1,1,0
+access_hapax_vehicle_tenant_member,hapax.vehicle tenant member,model_hapax_vehicle,hapax_core.group_hapax_tenant_member,1,0,0,0
+access_hapax_rate_plan_platform_admin,hapax.rate.plan platform admin,model_hapax_rate_plan,hapax_core.group_hapax_platform_admin,1,1,1,1
+access_hapax_rate_plan_tenant_admin,hapax.rate.plan tenant admin,model_hapax_rate_plan,hapax_core.group_hapax_tenant_admin,1,1,1,0
+access_hapax_availability_block_platform_admin,hapax.availability.block platform admin,model_hapax_availability_block,hapax_core.group_hapax_platform_admin,1,1,1,1
+access_hapax_availability_block_tenant_admin,hapax.availability.block tenant admin,model_hapax_availability_block,hapax_core.group_hapax_tenant_admin,1,1,1,0
+access_hapax_booking_platform_admin,hapax.booking platform admin,model_hapax_booking,hapax_core.group_hapax_platform_admin,1,1,1,1
+access_hapax_booking_tenant_admin,hapax.booking tenant admin,model_hapax_booking,hapax_core.group_hapax_tenant_admin,1,1,1,0
+access_hapax_booking_tenant_member,hapax.booking tenant member,model_hapax_booking,hapax_core.group_hapax_tenant_member,1,0,1,0

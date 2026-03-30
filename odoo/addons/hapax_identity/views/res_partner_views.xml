@@ -1,0 +1,20 @@
+<odoo>
+    <record id="view_partner_form_hapax_identity" model="ir.ui.view">
+        <field name="name">res.partner.form.hapax.identity</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div[hasclass('oe_button_box')]" position="inside">
+                <button
+                    class="oe_stat_button"
+                    type="object"
+                    name="action_view_hapax_memberships"
+                    icon="fa-id-badge"
+                    groups="hapax_core.group_hapax_platform_admin,hapax_core.group_hapax_tenant_admin"
+                >
+                    <field name="hapax_membership_count" widget="statinfo" string="Hapax Memberships"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

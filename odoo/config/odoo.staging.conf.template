@@ -1,0 +1,16 @@
+[options]
+addons_path = /mnt/extra-addons
+admin_passwd = ${ODOO_ADMIN_PASSWD}
+db_host = ${ODOO_DB_HOST}
+db_port = ${ODOO_DB_PORT}
+db_user = ${ODOO_DB_USER}
+db_password = ${ODOO_DB_PASSWORD}
+dbfilter = ^${ODOO_DB_NAME}$
+proxy_mode = True
+list_db = False
+xmlrpc_interface = 0.0.0.0
+http_port = 8069
+longpolling_port = 8072
+workers = ${ODOO_WORKERS}
+limit_time_real = ${ODOO_LIMIT_TIME_REAL}
+without_demo = all

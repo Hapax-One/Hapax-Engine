@@ -1,0 +1,65 @@
+<odoo>
+    <record id="view_hapax_membership_tree" model="ir.ui.view">
+        <field name="name">hapax.membership.tree</field>
+        <field name="model">hapax.membership</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <field name="project_id"/>
+                <field name="role"/>
+                <field name="status"/>
+                <field name="joined_at"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hapax_membership_form" model="ir.ui.view">
+        <field name="name">hapax.membership.form</field>
+        <field name="model">hapax.membership</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="project_id"/>
+                            <field name="partner_id"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="role"/>
+                            <field name="status"/>
+                            <field name="is_primary"/>
+                            <field name="joined_at"/>
+                        </group>
+                    </group>
+                    <group string="Contact">
+                        <group>
+                            <field name="email"/>
+                            <field name="phone"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hapax_memberships" model="ir.actions.act_window">
+        <field name="name">Memberships</field>
+        <field name="res_model">hapax.membership</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="menu_hapax_memberships"
+        name="Memberships"
+        parent="hapax_core.menu_hapax_root"
+        action="hapax_identity.action_hapax_memberships"
+        groups="hapax_core.group_hapax_platform_admin,hapax_core.group_hapax_tenant_admin"
+        sequence="20"
+    />
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hapax_project_platform_admin,hapax.project platform admin,model_hapax_project,hapax_core.group_hapax_platform_admin,1,1,1,1
+access_hapax_project_tenant_admin,hapax.project tenant admin,model_hapax_project,hapax_core.group_hapax_tenant_admin,1,0,0,0
+access_hapax_project_tenant_member,hapax.project tenant member,model_hapax_project,hapax_core.group_hapax_tenant_member,1,0,0,0

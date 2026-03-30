@@ -1,0 +1,40 @@
+server {
+    listen 80;
+    server_name ${PUBLIC_HOST};
+    return 301 https://${PUBLIC_HOST}$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name ${PUBLIC_HOST};
+
+    ssl_certificate ${NGINX_SSL_CERT};
+    ssl_certificate_key ${NGINX_SSL_KEY};
+
+    client_max_body_size 25m;
+
+    location /websocket {
+        proxy_pass http://odoo:8072;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location /longpolling {
+        proxy_pass http://odoo:8072;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+
+    location / {
+        proxy_pass http://odoo:8069;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Host $host;
+    }
+}

@@ -1,0 +1,25 @@
+<odoo>
+    <record id="view_company_form_hapax" model="ir.ui.view">
+        <field name="name">res.company.form.hapax</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Hapax">
+                    <group>
+                        <group>
+                            <field name="hapax_slug"/>
+                            <field name="hapax_primary_host"/>
+                            <field name="hapax_brand_name"/>
+                        </group>
+                        <group>
+                            <field name="hapax_public_email"/>
+                            <field name="hapax_support_phone"/>
+                            <field name="hapax_logo_url"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

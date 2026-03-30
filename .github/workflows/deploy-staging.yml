@@ -1,0 +1,28 @@
+name: deploy-staging
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_DEPLOY_HOST }}
+          username: ${{ secrets.STAGING_DEPLOY_USER }}
+          key: ${{ secrets.STAGING_DEPLOY_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.STAGING_DEPLOY_PATH }}
+            git fetch --all
+            git checkout ${{ github.ref_name }}
+            git pull --ff-only
+            cp deploy/env/staging.env.example deploy/env/staging.env || true
+            ./scripts/render_configs.sh staging
+            docker compose -f deploy/docker-compose.staging.yml --env-file deploy/env/staging.env up -d --build
+            ./scripts/odoo_upgrade_modules.sh staging hapax_core,hapax_identity,hapax_rental,hapax_api,hapax_portal

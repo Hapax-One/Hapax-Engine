@@ -1,0 +1,69 @@
+<odoo>
+    <record id="view_hapax_rate_plan_tree" model="ir.ui.view">
+        <field name="name">hapax.rate.plan.tree</field>
+        <field name="model">hapax.rate.plan</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="project_id"/>
+                <field name="vehicle_id"/>
+                <field name="public"/>
+                <field name="daily_rate"/>
+                <field name="minimum_days"/>
+                <field name="valid_from"/>
+                <field name="valid_to"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_hapax_rate_plan_form" model="ir.ui.view">
+        <field name="name">hapax.rate.plan.form</field>
+        <field name="model">hapax.rate.plan</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id"/>
+                            <field name="project_id"/>
+                            <field name="vehicle_id"/>
+                        </group>
+                        <group>
+                            <field name="public"/>
+                            <field name="daily_rate"/>
+                            <field name="weekly_rate"/>
+                            <field name="weekend_rate"/>
+                        </group>
+                    </group>
+                    <group string="Conditions">
+                        <group>
+                            <field name="minimum_days"/>
+                            <field name="cleaning_fee"/>
+                            <field name="deposit_amount"/>
+                        </group>
+                        <group>
+                            <field name="valid_from"/>
+                            <field name="valid_to"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hapax_rate_plans" model="ir.actions.act_window">
+        <field name="name">Rate Plans</field>
+        <field name="res_model">hapax.rate.plan</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="menu_hapax_rate_plans"
+        name="Rate Plans"
+        parent="hapax_rental.menu_hapax_fleet"
+        action="hapax_rental.action_hapax_rate_plans"
+        groups="hapax_core.group_hapax_platform_admin,hapax_core.group_hapax_tenant_admin"
+        sequence="30"
+    />
+</odoo>

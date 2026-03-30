@@ -1,0 +1,49 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${ODOO_DB_NAME}
+      POSTGRES_USER: ${ODOO_DB_USER}
+      POSTGRES_PASSWORD: ${ODOO_DB_PASSWORD}
+    ports:
+      - "54329:5432"
+    volumes:
+      - hapax_local_db:/var/lib/postgresql/data
+
+  odoo:
+    image: odoo:${ODOO_VERSION:-19.0}
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      HOST: db
+      USER: ${ODOO_DB_USER}
+      PASSWORD: ${ODOO_DB_PASSWORD}
+      HAPAX_BASE_DOMAIN: ${HAPAX_BASE_DOMAIN}
+      HAPAX_API_COOKIE_DOMAIN: ${HAPAX_API_COOKIE_DOMAIN}
+    command: >-
+      odoo
+      --db_host=db
+      --db_port=5432
+      --db_user=${ODOO_DB_USER}
+      --db_password=${ODOO_DB_PASSWORD}
+      --db-filter=^${ODOO_DB_NAME}$
+      --addons-path=/usr/lib/python3/dist-packages/odoo/addons,/mnt/extra-addons
+      --data-dir=/var/lib/odoo
+      --proxy-mode
+      --no-database-list
+      --http-port=8069
+      --longpolling-port=8072
+      --without-demo=all
+      --admin-passwd=${ODOO_ADMIN_PASSWD}
+    ports:
+      - "8069:8069"
+      - "8072:8072"
+    volumes:
+      - hapax_local_odoo:/var/lib/odoo
+      - ../odoo/addons:/mnt/extra-addons
+
+volumes:
+  hapax_local_db:
+  hapax_local_odoo:

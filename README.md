@@ -1,79 +1,69 @@
-# Hapax-Engine
-Main Framework for Hapax from which all pods are created
+# Hapax Engine
 
----
+`hapax-engine` is the split Odoo backend foundation for `gohapax.com`.
 
-# A Multi-Tenant Odoo 18 App
+It owns:
 
-![An Odoo Mult-Tenant App](images/main.png "Odoo Mult-Tenant App Setup Interface")
+- the Odoo 19 runtime and deployment assets
+- tenant-aware platform modules
+- the first Hapax identity, rental, and API surfaces
+- staging and production deployment scaffolding for DigitalOcean
 
-## Summary
+The existing root-level starter files are still present for reference while this repo is being normalized. The active platform foundation now lives under `odoo/`, `deploy/`, `scripts/`, and `docs/`.
 
-How to configure multiple databases on individual domain names using a single Odoo instance? [View Full Article here](https://dev.to/thisishaykins/how-to-configure-multiple-databases-on-individual-domain-names-using-a-single-odoo-instance-a-1mlg)
+## Target architecture
 
-Whether you’re a developer, startup founder, or building the next ERP-as-a-Service, this is your kick-off point. With this setup, you're running your own multi-tenant app on Odoo 18.
+- Odoo 19 on DigitalOcean
+- one PostgreSQL database per environment
+- one Odoo database with multi-company tenancy
+- one `res.company` per tenant
+- shared identity through `res.partner`, `res.users`, and `hapax.membership`
+- custom controller surface at `api.gohapax.com`
+- backend-only booking creation and availability enforcement
 
-## Project Structure
+## Repository layout
 
-```
-├── docker-compose.yml
-├── .env
-├── odoo.conf
-└── traefik/
-    ├── traefik.yml
-    └── acme.json
-```
-
-## Project Setup
-
-### > Add host entries on `/etc/hosts` (or Windows equivalent)
-
-```bash
-127.0.0.1 client-1.haykinsodoo.docker client-2.haykinsodoo.docker client-3.haykinsodoo.docker
-```
-
-### > Startup the project using docker
-
-```bash
-# Start services
-$ docker-compose up 
-
-# === OR ====
-
-$ docker-compose up -d
-```
-
-### > Visit the following link on your browser
-
-- <http://client-1.haykinsodoo.docker/> **(note: ensure to copy the master password which will be re-used for all other clients installations)**
-- http://client-2.haykinsodoo.docker/
-- http://client-3.haykinsodoo.docker/
-
-
-### > 🤖 Bonus: Manually Create DB
-```bash
-$ docker exec -it <odoo_container_id> /bin/bash
-
-$ odoo -d client-1 --init=base --stop-after-init
+```text
+hapax-engine/
+├── deploy/
+│   ├── docker-compose.local.yml
+│   ├── docker-compose.staging.yml
+│   ├── env/
+│   └── nginx/
+├── docs/
+│   ├── api.md
+│   ├── deployment.md
+│   ├── setup.md
+│   ├── tenant-model.md
+│   └── what-codex-changed.md
+├── odoo/
+│   ├── addons/
+│   │   ├── hapax_api/
+│   │   ├── hapax_core/
+│   │   ├── hapax_identity/
+│   │   ├── hapax_portal/
+│   │   └── hapax_rental/
+│   └── config/
+├── scripts/
+└── .github/workflows/
 ```
 
-## Project App Screenshots
+## Quick start
 
-### Client 1 App Interface
+1. Copy `deploy/env/local.env.example` to `deploy/env/local.env`.
+2. Run `./scripts/bootstrap_local.sh`.
+3. Open `http://localhost:8069` for Odoo.
+4. Install the Hapax modules in this order:
+   - `hapax_core`
+   - `hapax_identity`
+   - `hapax_rental`
+   - `hapax_api`
+   - `hapax_portal`
 
-![An Odoo Mult-Tenant App](images/client-1.png "Odoo Mult-Tenant App Client 1 Interface")
+## Main docs
 
-### Client 2 App Interface
-
-![An Odoo Mult-Tenant App](images/client-2.png "Odoo Mult-Tenant App Client 2 Interface")
-
-### Client 3 App Interface
-
-![An Odoo Mult-Tenant App](images/client-3.png "Odoo Mult-Tenant App Client 3 Interface")
-
-
-
----
-
-Developed By: Akinshola Samuel AKINDE (<akinsholasamuel@gmail.com>)
-Drop your questions [here](https://github.com/thisishaykins/multi-tenant-odoo-app/issues/new/choose) or reachout and tag me on Twitter/X: @thisishaykins
+- [Local and staging setup](/Users/nicholassalmon/Hapax-Engine/docs/setup.md)
+- [Deployment runbook](/Users/nicholassalmon/Hapax-Engine/docs/deployment.md)
+- [Tenant model](/Users/nicholassalmon/Hapax-Engine/docs/tenant-model.md)
+- [Initial API surface](/Users/nicholassalmon/Hapax-Engine/docs/api.md)
+- [Codex change log](/Users/nicholassalmon/Hapax-Engine/docs/what-codex-changed.md)

@@ -1,0 +1,38 @@
+name: backend-ci
+
+on:
+  pull_request:
+    paths:
+      - "docs/**"
+      - "deploy/**"
+      - "odoo/**"
+      - "scripts/**"
+      - ".github/workflows/backend-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "deploy/**"
+      - "odoo/**"
+      - "scripts/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Python syntax
+        run: python -m compileall odoo/addons scripts
+
+      - name: Validate local compose config
+        run: |
+          cp deploy/env/local.env.example deploy/env/local.env
+          ./scripts/render_configs.sh local
+          docker compose -f deploy/docker-compose.local.yml --env-file deploy/env/local.env config > /tmp/hapax-local-compose.yml
