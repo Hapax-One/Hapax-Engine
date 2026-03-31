@@ -7,6 +7,9 @@ from odoo.http import Controller, Response, request, route
 
 
 class HapaxApiController(Controller):
+    def _tenant_service(self):
+        return request.env["hapax.tenant.service"].sudo()
+
     def _json_response(self, payload, status=200):
         body = json.dumps(payload, default=str)
         return Response(
@@ -39,6 +42,109 @@ class HapaxApiController(Controller):
     def _slugify(self, value):
         slug = re.sub(r"[^a-z0-9]+", "-", (value or "").strip().lower()).strip("-")
         return slug or "item"
+
+    def _load_project_metadata(self, project):
+        try:
+            return json.loads(project.metadata_json or "{}")
+        except ValueError:
+            return {}
+
+    def _project_settings_payload(self, project):
+        metadata = self._load_project_metadata(project)
+        return {
+            "tenant": project.to_public_payload(),
+            "project": {
+                "id": project.id,
+                "name": project.name,
+                "code": project.code,
+                "slug": project.slug,
+                "primaryHost": project.primary_host,
+                "websiteUrl": project.website_url,
+                "brandName": project.brand_name or project.name,
+                "brandColor": project.brand_color,
+                "supportEmail": project.support_email,
+                "supportPhone": project.support_phone,
+                "logoUrl": project.logo_url,
+                "metadata": metadata,
+            },
+            "baseDomain": self._tenant_service().get_base_domain(),
+        }
+
+    def _project_values_from_payload(self, project, payload):
+        values = {}
+
+        if "name" in payload:
+            name = (payload.get("name") or "").strip()
+            if not name:
+                raise ValidationError("Business name is required.")
+            values["name"] = name
+
+        if "brandName" in payload:
+            brand_name = (payload.get("brandName") or "").strip()
+            if not brand_name:
+                raise ValidationError("Business display name is required.")
+            values["brand_name"] = brand_name
+
+        if "supportEmail" in payload:
+            support_email = (payload.get("supportEmail") or "").strip()
+            values["support_email"] = self._normalize_email(support_email) if support_email else False
+
+        if "supportPhone" in payload:
+            values["support_phone"] = (payload.get("supportPhone") or "").strip() or False
+
+        if "brandColor" in payload:
+            values["brand_color"] = (payload.get("brandColor") or "").strip() or False
+
+        if "logoUrl" in payload:
+            values["logo_url"] = (payload.get("logoUrl") or "").strip() or False
+
+        tenant_service = self._tenant_service()
+        next_slug = None
+        if "slug" in payload:
+            next_slug = self._slugify(payload.get("slug"))
+            values["slug"] = next_slug
+
+        if "primaryHost" in payload or "host" in payload:
+            host_value = payload.get("primaryHost") or payload.get("host")
+            next_host = tenant_service.sanitize_host(host_value)
+            if not next_host:
+                raise ValidationError("A valid hostname is required.")
+            values["primary_host"] = next_host
+        elif next_slug:
+            values["primary_host"] = f"{next_slug}.{tenant_service.get_base_domain()}"
+
+        if "websiteUrl" in payload:
+            website_url = (payload.get("websiteUrl") or "").strip()
+            values["website_url"] = website_url or False
+        elif values.get("primary_host"):
+            values["website_url"] = f"https://{values['primary_host']}"
+
+        metadata = self._load_project_metadata(project)
+        metadata_updated = False
+        for field_name, metadata_key in {
+            "industry": "industry",
+            "businessType": "business_type",
+        }.items():
+            if field_name not in payload:
+                continue
+            metadata[metadata_key] = (payload.get(field_name) or "").strip()
+            metadata_updated = True
+
+        if metadata_updated:
+            values["metadata_json"] = json.dumps(metadata)
+
+        return values
+
+    def _sync_company_with_project(self, project):
+        company_values = {
+            "hapax_slug": project.slug,
+            "hapax_primary_host": project.primary_host,
+            "hapax_brand_name": project.brand_name or project.name,
+            "hapax_public_email": project.support_email or False,
+            "hapax_support_phone": project.support_phone or False,
+            "hapax_logo_url": project.logo_url or False,
+        }
+        project.company_id.sudo().write(company_values)
 
     def _resolve_project(self, payload=None):
         payload = payload or {}
@@ -413,6 +519,29 @@ class HapaxApiController(Controller):
                 },
             )
             return {"tenant": project.to_public_payload(), "booking": booking.to_public_payload()}
+
+        return self._handle(_payload)
+
+    @route("/api/v1/admin/project", type="http", auth="public", methods=["GET"], csrf=False)
+    def admin_project(self, **_kwargs):
+        def _payload():
+            project = self._resolve_project()
+            self._require_admin_session(project)
+            return self._project_settings_payload(project)
+
+        return self._handle(_payload)
+
+    @route("/api/v1/admin/project", type="http", auth="public", methods=["PATCH"], csrf=False)
+    def update_admin_project(self, **_kwargs):
+        def _payload():
+            payload = self._request_json()
+            project = self._resolve_project(payload=payload)
+            self._require_admin_session(project)
+            values = self._project_values_from_payload(project, payload)
+            if values:
+                project.sudo().write(values)
+                self._sync_company_with_project(project)
+            return self._project_settings_payload(project)
 
         return self._handle(_payload)
 
