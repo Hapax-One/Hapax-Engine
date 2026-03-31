@@ -51,6 +51,10 @@ class HapaxApiController(Controller):
 
     def _project_settings_payload(self, project):
         metadata = self._load_project_metadata(project)
+        onboarding = {
+            "setupStep": metadata.get("setup_step") or "business-details",
+            "setupCompleted": bool(metadata.get("setup_completed")),
+        }
         return {
             "tenant": project.to_public_payload(),
             "project": {
@@ -65,8 +69,13 @@ class HapaxApiController(Controller):
                 "supportEmail": project.support_email,
                 "supportPhone": project.support_phone,
                 "logoUrl": project.logo_url,
+                "companyId": project.company_id.id,
+                "companyName": project.company_id.name,
+                "setupStep": onboarding["setupStep"],
+                "setupCompleted": onboarding["setupCompleted"],
                 "metadata": metadata,
             },
+            "onboarding": onboarding,
             "baseDomain": self._tenant_service().get_base_domain(),
         }
 
@@ -124,10 +133,46 @@ class HapaxApiController(Controller):
         for field_name, metadata_key in {
             "industry": "industry",
             "businessType": "business_type",
+            "businessAddress": "business_address",
+            "secondaryPhone": "secondary_phone",
+            "whatsappNumber": "whatsapp_number",
+            "timeZone": "time_zone",
         }.items():
             if field_name not in payload:
                 continue
             metadata[metadata_key] = (payload.get(field_name) or "").strip()
+            metadata_updated = True
+
+        if "contactEmail" in payload:
+            contact_email = self._normalize_email(payload.get("contactEmail")) if payload.get("contactEmail") else False
+            values["support_email"] = contact_email
+            metadata["contact_email"] = contact_email or ""
+            metadata_updated = True
+
+        if "phoneNumber" in payload:
+            phone_number = (payload.get("phoneNumber") or "").strip()
+            values["support_phone"] = phone_number or False
+            metadata["phone_number"] = phone_number
+            metadata_updated = True
+
+        if "hours" in payload:
+            metadata["business_hours"] = payload.get("hours") or []
+            metadata_updated = True
+
+        if "payoutDetails" in payload:
+            metadata["payout_details"] = payload.get("payoutDetails") or {}
+            metadata_updated = True
+
+        if "inviteMembers" in payload:
+            metadata["invite_members"] = payload.get("inviteMembers") or []
+            metadata_updated = True
+
+        if "setupStep" in payload:
+            metadata["setup_step"] = (payload.get("setupStep") or "").strip() or "business-details"
+            metadata_updated = True
+
+        if "setupCompleted" in payload:
+            metadata["setup_completed"] = bool(payload.get("setupCompleted"))
             metadata_updated = True
 
         if metadata_updated:
@@ -136,15 +181,18 @@ class HapaxApiController(Controller):
         return values
 
     def _sync_company_with_project(self, project):
-        company_values = {
-            "hapax_slug": project.slug,
-            "hapax_primary_host": project.primary_host,
-            "hapax_brand_name": project.brand_name or project.name,
-            "hapax_public_email": project.support_email or False,
-            "hapax_support_phone": project.support_phone or False,
-            "hapax_logo_url": project.logo_url or False,
-        }
-        project.company_id.sudo().write(company_values)
+        self._tenant_service().sync_company_from_project(project)
+        metadata = self._load_project_metadata(project)
+        company_partner = project.company_id.partner_id.sudo()
+        company_values = {}
+        if metadata.get("business_address") is not None:
+            company_values["street"] = metadata.get("business_address") or False
+        if project.support_email:
+            company_values["email"] = project.support_email
+        if project.support_phone:
+            company_values["phone"] = project.support_phone
+        if company_values:
+            company_partner.write(company_values)
 
     def _resolve_project(self, payload=None):
         payload = payload or {}
@@ -184,6 +232,26 @@ class HapaxApiController(Controller):
             },
             "membership": membership.to_public_payload() if membership else None,
         }
+
+    def _session_response(self, project, user, membership=False, scope=False, include_project=False):
+        project.ensure_one()
+        user.ensure_one()
+        resolved_scope = scope or ("admin" if user.has_hapax_admin_access(project) else "customer")
+        session_data = request.env["hapax.portal.session"].sudo().issue_for_user(
+            project,
+            user,
+            membership=membership,
+            scope=resolved_scope,
+            user_agent=request.httprequest.headers.get("User-Agent"),
+            ip_address=request.httprequest.remote_addr,
+        )
+        response = self._portal_session_payload(session_data["record"])
+        response["token"] = session_data["token"]
+        if include_project:
+            settings = self._project_settings_payload(project)
+            response["project"] = settings["project"]
+            response["onboarding"] = settings["onboarding"]
+        return response
 
     def _get_membership(self, user, project):
         membership = request.env["hapax.membership"].sudo().search(
@@ -405,17 +473,7 @@ class HapaxApiController(Controller):
                     }
                 )
 
-            session_data = request.env["hapax.portal.session"].sudo().issue_for_user(
-                project,
-                user,
-                membership=membership,
-                scope="customer",
-                user_agent=request.httprequest.headers.get("User-Agent"),
-                ip_address=request.httprequest.remote_addr,
-            )
-            response = self._portal_session_payload(session_data["record"])
-            response["token"] = session_data["token"]
-            return response
+            return self._session_response(project, user, membership=membership, scope="customer")
 
         return self._handle(_payload)
 
@@ -447,17 +505,69 @@ class HapaxApiController(Controller):
                 raise AccessDenied("This account is not linked to the requested tenant.")
 
             scope = "admin" if user.has_hapax_admin_access(project) else "customer"
-            session_data = request.env["hapax.portal.session"].sudo().issue_for_user(
-                project,
-                user,
-                membership=membership,
-                scope=scope,
-                user_agent=request.httprequest.headers.get("User-Agent"),
-                ip_address=request.httprequest.remote_addr,
+            return self._session_response(project, user, membership=membership, scope=scope)
+
+        return self._handle(_payload)
+
+    @route("/api/v1/business/auth/register", type="http", auth="public", methods=["POST"], csrf=False)
+    def business_auth_register(self, **_kwargs):
+        def _payload():
+            payload = self._request_json()
+            tenant = self._tenant_service().bootstrap_business_tenant(
+                name=payload.get("name"),
+                email=payload.get("email"),
+                password=payload.get("password"),
+                phone=payload.get("phone"),
             )
-            response = self._portal_session_payload(session_data["record"])
-            response["token"] = session_data["token"]
-            return response
+            return self._session_response(
+                tenant["project"],
+                tenant["user"],
+                membership=tenant["membership"],
+                scope="admin",
+                include_project=True,
+            )
+
+        return self._handle(_payload)
+
+    @route("/api/v1/business/auth/login", type="http", auth="public", methods=["POST"], csrf=False)
+    def business_auth_login(self, **_kwargs):
+        def _payload():
+            payload = self._request_json()
+            email = self._normalize_email(payload.get("email"))
+            password = payload.get("password") or ""
+            if not password:
+                raise ValidationError("Password is required.")
+
+            auth_info = request.session.authenticate(
+                request.env,
+                {
+                    "login": email,
+                    "password": password,
+                    "type": "password",
+                },
+            )
+            uid = auth_info.get("uid")
+            if not uid:
+                raise AccessDenied("Invalid email or password.")
+
+            user = request.env["res.users"].sudo().browse(uid)
+            requested_host = (
+                payload.get("host")
+                or request.httprequest.headers.get("X-Hapax-Tenant-Host")
+                or request.httprequest.headers.get("X-Forwarded-Host")
+                or request.httprequest.headers.get("Host")
+            )
+            project = self._tenant_service().find_business_project_for_user(user, requested_host=requested_host)
+            if not project:
+                raise AccessDenied("This account is not linked to a Hapax business org.")
+
+            membership = self._get_membership(user, project)
+            if not user.has_group("hapax_core.group_hapax_platform_admin") and not (
+                membership and membership.has_admin_access()
+            ):
+                raise AccessDenied("This account does not have business admin access.")
+
+            return self._session_response(project, user, membership=membership, scope="admin", include_project=True)
 
         return self._handle(_payload)
 
