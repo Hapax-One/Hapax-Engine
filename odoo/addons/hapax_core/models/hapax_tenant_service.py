@@ -175,7 +175,6 @@ class HapaxTenantService(models.AbstractModel):
             }
         )
 
-        portal_group = self.env.ref("base.group_portal")
         tenant_admin_group = self.env.ref("hapax_core.group_hapax_tenant_admin")
         user = (
             user_model.with_context(no_reset_password=True)
@@ -189,7 +188,8 @@ class HapaxTenantService(models.AbstractModel):
                     "company_id": company.id,
                     "company_ids": [(6, 0, [company.id])],
                     "hapax_default_project_id": project.id,
-                    "group_ids": [(6, 0, [portal_group.id, tenant_admin_group.id])],
+                    # Business owners are internal tenant admins, not portal-only users.
+                    "group_ids": [(6, 0, [tenant_admin_group.id])],
                 }
             )
         )
