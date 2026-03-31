@@ -85,4 +85,5 @@ class HapaxProject(models.Model):
             "supportPhone": self.support_phone,
             "logoUrl": self.logo_url,
             "companyId": self.company_id.id,
+            "companyName": self.company_id.name,
         }
