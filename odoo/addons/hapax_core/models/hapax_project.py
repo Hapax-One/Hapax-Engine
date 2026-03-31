@@ -29,6 +29,8 @@ class HapaxProject(models.Model):
     support_email = fields.Char()
     support_phone = fields.Char()
     logo_url = fields.Char()
+    logo_image = fields.Image(attachment=True, max_width=1024, max_height=1024)
+    banner_image = fields.Image(attachment=True, max_width=2560, max_height=1440)
     status = fields.Selection(
         [
             ("draft", "Draft"),
@@ -71,7 +73,19 @@ class HapaxProject(models.Model):
             values.setdefault("brand_name", values.get("name"))
         return super().create(vals_list)
 
-    def to_public_payload(self):
+    def _asset_url(self, field_name, base_url=False):
+        self.ensure_one()
+        if not getattr(self, field_name):
+            return False
+
+        resolved_base = (
+            (base_url or self.env["ir.config_parameter"].sudo().get_param("web.base.url"))
+            or ""
+        ).rstrip("/")
+        image_path = f"/web/image?model=hapax.project&id={self.id}&field={field_name}"
+        return f"{resolved_base}{image_path}" if resolved_base else image_path
+
+    def to_public_payload(self, base_url=False):
         self.ensure_one()
         return {
             "id": self.id,
@@ -83,7 +97,8 @@ class HapaxProject(models.Model):
             "brandColor": self.brand_color,
             "supportEmail": self.support_email,
             "supportPhone": self.support_phone,
-            "logoUrl": self.logo_url,
+            "logoUrl": self._asset_url("logo_image", base_url) or self.logo_url,
+            "bannerUrl": self._asset_url("banner_image", base_url),
             "companyId": self.company_id.id,
             "companyName": self.company_id.name,
         }

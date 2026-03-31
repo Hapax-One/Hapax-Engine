@@ -83,9 +83,12 @@ class HapaxTenantService(models.AbstractModel):
                 "hapax_slug": project.slug,
                 "hapax_primary_host": project.primary_host,
                 "hapax_brand_name": project.brand_name or project.name,
+                "hapax_brand_color": project.brand_color or False,
                 "hapax_public_email": project.support_email or False,
                 "hapax_support_phone": project.support_phone or False,
                 "hapax_logo_url": project.logo_url or False,
+                "hapax_logo_image": project.logo_image or False,
+                "hapax_banner_image": project.banner_image or False,
             }
         )
 

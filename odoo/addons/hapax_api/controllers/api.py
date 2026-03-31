@@ -1,3 +1,5 @@
+import base64
+import binascii
 import json
 import re
 
@@ -43,6 +45,18 @@ class HapaxApiController(Controller):
         slug = re.sub(r"[^a-z0-9]+", "-", (value or "").strip().lower()).strip("-")
         return slug or "item"
 
+    def _public_base_url(self):
+        forwarded_proto = request.httprequest.headers.get("X-Forwarded-Proto")
+        forwarded_host = request.httprequest.headers.get("X-Forwarded-Host")
+        host = forwarded_host or request.httprequest.headers.get("Host")
+        scheme = forwarded_proto or request.httprequest.scheme or "https"
+        if host:
+            return f"{scheme}://{host}".rstrip("/")
+        return request.httprequest.url_root.rstrip("/")
+
+    def _tenant_payload(self, project):
+        return project.to_public_payload(base_url=self._public_base_url())
+
     def _load_project_metadata(self, project):
         try:
             return json.loads(project.metadata_json or "{}")
@@ -56,7 +70,7 @@ class HapaxApiController(Controller):
             "setupCompleted": bool(metadata.get("setup_completed")),
         }
         return {
-            "tenant": project.to_public_payload(),
+            "tenant": self._tenant_payload(project),
             "project": {
                 "id": project.id,
                 "name": project.name,
@@ -68,7 +82,8 @@ class HapaxApiController(Controller):
                 "brandColor": project.brand_color,
                 "supportEmail": project.support_email,
                 "supportPhone": project.support_phone,
-                "logoUrl": project.logo_url,
+                "logoUrl": project._asset_url("logo_image", self._public_base_url()) or project.logo_url,
+                "bannerUrl": project._asset_url("banner_image", self._public_base_url()),
                 "companyId": project.company_id.id,
                 "companyName": project.company_id.name,
                 "setupStep": onboarding["setupStep"],
@@ -102,10 +117,21 @@ class HapaxApiController(Controller):
             values["support_phone"] = (payload.get("supportPhone") or "").strip() or False
 
         if "brandColor" in payload:
-            values["brand_color"] = (payload.get("brandColor") or "").strip() or False
+            brand_color = (payload.get("brandColor") or "").strip()
+            if brand_color and not re.match(r"^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$", brand_color):
+                raise ValidationError("Choose a valid brand color.")
+            values["brand_color"] = brand_color or False
 
         if "logoUrl" in payload:
             values["logo_url"] = (payload.get("logoUrl") or "").strip() or False
+
+        if "logoImageData" in payload:
+            values["logo_image"] = self._parse_image_payload(payload.get("logoImageData"), "logo")
+            if values["logo_image"]:
+                values["logo_url"] = False
+
+        if "bannerImageData" in payload:
+            values["banner_image"] = self._parse_image_payload(payload.get("bannerImageData"), "banner")
 
         tenant_service = self._tenant_service()
         next_slug = None
@@ -180,6 +206,30 @@ class HapaxApiController(Controller):
 
         return values
 
+    def _parse_image_payload(self, value, label):
+        if not value:
+            return False
+
+        raw = (value or "").strip()
+        match = re.match(
+            r"^data:(image/(png|jpeg|jpg|webp));base64,(?P<data>[A-Za-z0-9+/=\s]+)$",
+            raw,
+            re.IGNORECASE,
+        )
+        if not match:
+            raise ValidationError(f"Upload a PNG, JPG, or WEBP {label} image.")
+
+        encoded = re.sub(r"\s+", "", match.group("data"))
+        try:
+            decoded = base64.b64decode(encoded, validate=True)
+        except (binascii.Error, ValueError) as exc:
+            raise ValidationError(f"The {label} image could not be decoded.") from exc
+
+        if len(decoded) > 4 * 1024 * 1024:
+            raise ValidationError(f"The {label} image must be 4 MB or smaller.")
+
+        return encoded
+
     def _sync_company_with_project(self, project):
         self._tenant_service().sync_company_from_project(project)
         metadata = self._load_project_metadata(project)
@@ -223,7 +273,7 @@ class HapaxApiController(Controller):
     def _portal_session_payload(self, session):
         membership = session.membership_id
         return {
-            "tenant": session.project_id.to_public_payload(),
+            "tenant": self._tenant_payload(session.project_id),
             "session": session.to_public_payload(),
             "user": {
                 "id": session.user_id.id,
@@ -340,7 +390,7 @@ class HapaxApiController(Controller):
 
     @route("/api/v1/tenant/by-host", type="http", auth="public", methods=["GET"], csrf=False)
     def tenant_by_host(self, **_kwargs):
-        return self._handle(lambda: {"tenant": self._resolve_project().to_public_payload()})
+        return self._handle(lambda: {"tenant": self._tenant_payload(self._resolve_project())})
 
     @route("/api/v1/storefront/vehicles", type="http", auth="public", methods=["GET"], csrf=False)
     def storefront_vehicles(self, **_kwargs):
@@ -356,7 +406,7 @@ class HapaxApiController(Controller):
                 order="sequence asc, name asc",
             )
             return {
-                "tenant": project.to_public_payload(),
+                "tenant": self._tenant_payload(project),
                 "vehicles": [vehicle.to_storefront_payload() for vehicle in vehicles],
             }
 
@@ -383,7 +433,7 @@ class HapaxApiController(Controller):
             )
             if not vehicle:
                 raise ValidationError("Vehicle not found for this tenant.")
-            return {"tenant": project.to_public_payload(), "vehicle": vehicle.to_storefront_payload()}
+            return {"tenant": self._tenant_payload(project), "vehicle": vehicle.to_storefront_payload()}
 
         return self._handle(_payload)
 
@@ -405,7 +455,7 @@ class HapaxApiController(Controller):
                 payload.get("dateEnd"),
             )
             vehicle = quote.pop("vehicle")
-            return {"tenant": project.to_public_payload(), "vehicle": vehicle.to_storefront_payload(), "quote": quote}
+            return {"tenant": self._tenant_payload(project), "vehicle": vehicle.to_storefront_payload(), "quote": quote}
 
         return self._handle(_payload)
 
@@ -602,7 +652,7 @@ class HapaxApiController(Controller):
                 order="date_start desc",
             )
             return {
-                "tenant": project.to_public_payload(),
+                "tenant": self._tenant_payload(project),
                 "bookings": [booking.to_public_payload() for booking in bookings],
             }
 
@@ -628,7 +678,7 @@ class HapaxApiController(Controller):
                     "membership": session.membership_id,
                 },
             )
-            return {"tenant": project.to_public_payload(), "booking": booking.to_public_payload()}
+            return {"tenant": self._tenant_payload(project), "booking": booking.to_public_payload()}
 
         return self._handle(_payload)
 
@@ -678,7 +728,7 @@ class HapaxApiController(Controller):
                 ).mapped("quoted_total")
             )
             return {
-                "tenant": project.to_public_payload(),
+                "tenant": self._tenant_payload(project),
                 "summary": {
                     "vehicleCount": vehicle_model.search_count([("project_id", "=", project.id)]),
                     "activeBookingCount": active_bookings,
@@ -702,7 +752,7 @@ class HapaxApiController(Controller):
                 [("project_id", "=", project.id)],
                 order="sequence asc, name asc",
             )
-            return {"tenant": project.to_public_payload(), "vehicles": [vehicle.to_storefront_payload() for vehicle in vehicles]}
+            return {"tenant": self._tenant_payload(project), "vehicles": [vehicle.to_storefront_payload() for vehicle in vehicles]}
 
         return self._handle(_payload)
 
@@ -714,7 +764,7 @@ class HapaxApiController(Controller):
             self._require_admin_session(project)
             values = self._vehicle_values_from_payload(project, payload)
             vehicle = request.env["hapax.vehicle"].sudo().create(values)
-            return {"tenant": project.to_public_payload(), "vehicle": vehicle.to_storefront_payload()}
+            return {"tenant": self._tenant_payload(project), "vehicle": vehicle.to_storefront_payload()}
 
         return self._handle(_payload)
 
@@ -733,7 +783,7 @@ class HapaxApiController(Controller):
             values = self._vehicle_values_from_payload(project, payload, existing=True)
             if values:
                 vehicle.sudo().write(values)
-            return {"tenant": project.to_public_payload(), "vehicle": vehicle.to_storefront_payload()}
+            return {"tenant": self._tenant_payload(project), "vehicle": vehicle.to_storefront_payload()}
 
         return self._handle(_payload)
 
@@ -746,7 +796,7 @@ class HapaxApiController(Controller):
                 [("project_id", "=", project.id)],
                 order="create_date desc",
             )
-            return {"tenant": project.to_public_payload(), "bookings": [booking.to_public_payload() for booking in bookings]}
+            return {"tenant": self._tenant_payload(project), "bookings": [booking.to_public_payload() for booking in bookings]}
 
         return self._handle(_payload)
 
@@ -780,6 +830,6 @@ class HapaxApiController(Controller):
             elif payload.get("state") in {"pending", "in_progress", "completed"}:
                 booking.sudo().write({"state": payload["state"]})
 
-            return {"tenant": project.to_public_payload(), "booking": booking.to_public_payload()}
+            return {"tenant": self._tenant_payload(project), "booking": booking.to_public_payload()}
 
         return self._handle(_payload)
